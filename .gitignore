@@ -22,6 +22,9 @@ tech/projects/hyros-fit/03-源码/
 tech/projects/jd-review-scraper/
 tech/projects/slay-spire-guide/
 
+# 技术部（按项目分独立仓库）
+tech/
+
 # 日志与临时文件
 *.log
 *.tmp

@@ -11,17 +11,18 @@
 ```
 workspace/
 ├── wenner/          # CEO 空间 — 公司战略与全局管理
-├── tech/            # 技术部（CTO: Irra）— 工程实现与架构
 ├── design/          # 设计部（CIO: Mery）— 产品设计与用户研究
+├── marketing/       # 市场营销（预留）
 ├── ceo/             # 创始人办公区（JiaWen）
 ├── product/         # 产品管理（预留）
-├── marketing/       # 市场营销（预留）
 ├── ops/             # 运营支持（预留）
 ├── shared/          # 跨部门共享资源
 ├── skills/          # 通用级工具技能
 ├── memory/          # 公司记忆归档
 └── README.md        # 本文件
 ```
+
+> **技术部项目**（CTO: Irra）已按项目拆分到独立仓库，详见各项目 GitHub 仓库。
 
 ---
 
