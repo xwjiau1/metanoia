@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Metanoia 启明科技 — 人文叙事·编辑</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --canvas: #ffffff;
+      --surface: #fafafa;
+      --ink: #1a1a1a;
+      --body: #4a4a4a;
+      --muted: #8a8a8a;
+      --border: #e0e0e0;
+      --accent: #e74c3c;
+      --accent-soft: #fdeaea;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Noto Sans SC', -apple-system, sans-serif;
+      background: var(--canvas);
+      color: var(--body);
+      line-height: 1.7;
+    }
+
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: 72px;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px;
+      z-index: 1000;
+    }
+    .nav-logo {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 22px; font-weight: 600;
+      color: var(--ink);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+    }
+    .nav-links { display: flex; gap: 36px; }
+    .nav-link {
+      font-size: 14px; font-weight: 400;
+      color: var(--muted); text-decoration: none;
+      transition: color 0.2s;
+      letter-spacing: 0.05em;
+    }
+    .nav-link:hover { color: var(--ink); }
+    .nav-cta {
+      background: var(--accent); color: #fff;
+      padding: 10px 24px; border-radius: 4px;
+      font-size: 13px; font-weight: 500;
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      transition: all 0.2s;
+    }
+    .nav-cta:hover { background: #c0392b; }
+
+    .hero {
+      min-height: 100vh;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      padding: 160px 48px 80px;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(26,26,26,0.8) 0%, rgba(26,26,26,0.4) 50%, rgba(26,26,26,0.1) 100%);
+      z-index: 1;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, #2a2a2a 0%, #4a4a4a 50%, #6a6a6a 100%);
+      opacity: 0.9;
+    }
+    .hero-content {
+      position: relative; z-index: 2;
+      max-width: 680px;
+    }
+    .hero-label {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.2em;
+      color: rgba(255,255,255,0.7);
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .hero-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 64px; font-weight: 600;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: #fff;
+      margin-bottom: 24px;
+    }
+    .hero-subtitle {
+      font-size: 18px;
+      color: rgba(255,255,255,0.85);
+      margin-bottom: 40px;
+      max-width: 500px;
+      line-height: 1.7;
+    }
+    .hero-ctas { display: flex; gap: 16px; }
+    .btn-primary {
+      background: #fff; color: var(--ink);
+      padding: 14px 32px; border-radius: 4px;
+      font-size: 14px; font-weight: 500;
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: all 0.2s;
+    }
+    .btn-primary:hover { background: var(--accent-soft); }
+    .btn-secondary {
+      background: transparent; color: #fff;
+      padding: 14px 32px; border-radius: 4px;
+      font-size: 14px; font-weight: 500;
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.4);
+      letter-spacing: 0.05em;
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover { border-color: #fff; }
+    .scroll-hint {
+      position: absolute;
+      bottom: 32px; left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      color: rgba(255,255,255,0.6);
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      animation: bounce 2s ease-in-out infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(8px); }
+    }
+
+    .story-section {
+      padding: 120px 48px;
+      max-width: 680px; margin: 0 auto;
+    }
+    .story-section p {
+      font-size: 17px; line-height: 1.8;
+      color: var(--body);
+      margin-bottom: 24px;
+      text-indent: 2em;
+    }
+    .story-quote {
+      border-left: 3px solid var(--accent);
+      padding-left: 24px;
+      margin: 48px 0;
+    }
+    .story-quote p {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 24px;
+      color: var(--ink);
+      text-indent: 0;
+      line-height: 1.6;
+    }
+    .story-quote .author {
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: 16px;
+      text-indent: 0;
+    }
+
+    .services-section {
+      padding: 80px 48px;
+      max-width: 1200px; margin: 0 auto;
+    }
+    .service-item {
+      display: grid;
+      grid-template-columns: 55% 45%;
+      gap: 48px;
+      align-items: center;
+      margin-bottom: 80px;
+    }
+    .service-item.reverse {
+      grid-template-columns: 45% 55%;
+    }
+    .service-image {
+      aspect-ratio: 4/3;
+      background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+      border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 64px;
+      color: var(--muted);
+    }
+    .service-content .label {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .service-content h3 {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 36px; font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+    .service-content p {
+      font-size: 16px;
+      color: var(--body);
+      line-height: 1.7;
+    }
+
+    .projects-section {
+      padding: 80px 48px;
+      max-width: 1200px; margin: 0 auto;
+    }
+    .projects-header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+    .projects-header h2 {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 48px; font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 12px;
+    }
+    .projects-header p {
+      font-size: 16px; color: var(--muted);
+    }
+    .project-card {
+      display: grid;
+      grid-template-columns: 60% 40%;
+      gap: 0;
+      background: var(--surface);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 48px;
+      border: 1px solid var(--border);
+    }
+    .project-card.reverse {
+      grid-template-columns: 40% 60%;
+    }
+    .project-visual {
+      min-height: 360px;
+      background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 80px; color: var(--muted);
+    }
+    .project-info {
+      padding: 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .project-label {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .project-name {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 32px; font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 12px;
+    }
+    .project-desc {
+      font-size: 15px; color: var(--body);
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+    .project-link {
+      font-size: 14px; color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+    .project-link:hover { text-decoration: underline; }
+
+    .founder-section {
+      padding: 120px 48px;
+      max-width: 1000px; margin: 0 auto;
+      display: grid;
+      grid-template-columns: 45% 55%;
+      gap: 64px;
+      align-items: center;
+    }
+    .founder-portrait {
+      aspect-ratio: 3/4;
+      background: linear-gradient(135deg, #2a2a2a 0%, #4a4a4a 100%);
+      border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Noto Serif SC', serif;
+      font-size: 120px; font-weight: 400;
+      color: rgba(255,255,255,0.7);
+    }
+    .founder-content .label {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .founder-content h2 {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 40px; font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+    .founder-role {
+      font-size: 16px; color: var(--muted);
+      margin-bottom: 24px;
+    }
+    .founder-bio {
+      font-size: 16px; color: var(--body);
+      line-height: 1.8;
+      margin-bottom: 24px;
+    }
+    .founder-quote {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 22px;
+      color: var(--ink);
+      line-height: 1.6;
+      border-left: 3px solid var(--accent);
+      padding-left: 24px;
+    }
+
+    .contact-section {
+      padding: 120px 48px;
+      max-width: 600px; margin: 0 auto;
+      text-align: center;
+    }
+    .contact-section h2 {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 40px; font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 12px;
+    }
+    .contact-section > p {
+      font-size: 16px; color: var(--muted);
+      margin-bottom: 48px;
+    }
+    .form-input {
+      width: 100%; padding: 16px;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      background: transparent;
+      font-size: 16px; font-family: inherit;
+      color: var(--ink);
+      margin-bottom: 24px;
+      transition: border-color 0.2s;
+    }
+    .form-input:focus {
+      outline: none;
+      border-bottom-color: var(--accent);
+    }
+    .form-input::placeholder { color: var(--muted); }
+    textarea.form-input { min-height: 120px; resize: vertical; }
+    .form-submit {
+      width: 100%; padding: 16px;
+      background: var(--accent); color: #fff;
+      border: none;
+      font-size: 14px; font-weight: 500;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 16px;
+    }
+    .form-submit:hover { background: #c0392b; }
+    .contact-email {
+      font-size: 16px; color: var(--accent);
+      text-decoration: none;
+      margin-top: 24px;
+      display: inline-block;
+    }
+
+    .footer {
+      padding: 48px;
+      text-align: center;
+      border-top: 1px solid var(--border);
+    }
+    .footer-logo {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 24px; font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+    .footer-tagline {
+      font-size: 14px; color: var(--muted);
+      margin-bottom: 24px;
+    }
+    .footer-links {
+      display: flex; justify-content: center; gap: 32px;
+      margin-bottom: 24px;
+    }
+    .footer-links a {
+      font-size: 13px; color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--accent); }
+    .footer-copyright {
+      font-size: 12px; color: var(--muted);
+    }
+
+    .ai-bubble {
+      position: fixed; bottom: 24px; right: 24px;
+      width: 52px; height: 52px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      z-index: 1001;
+      box-shadow: 0 4px 16px rgba(231,76,60,0.3);
+      transition: all 0.2s;
+    }
+    .ai-bubble:hover { transform: scale(1.1); }
+    .ai-panel {
+      position: fixed; bottom: 88px; right: 24px;
+      width: 380px; height: 520px;
+      background: var(--surface);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      display: none; flex-direction: column;
+      z-index: 1000; overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+    }
+    .ai-panel.open { display: flex; }
+    .ai-header {
+      height: 56px;
+      display: flex; align-items: center;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .ai-header span {
+      font-size: 14px; font-weight: 500;
+      color: var(--ink);
+    }
+    .ai-close {
+      margin-left: auto;
+      color: var(--muted); cursor: pointer;
+      font-size: 20px;
+    }
+    .ai-messages {
+      flex: 1; overflow-y: auto; padding: 20px;
+    }
+    .ai-welcome {
+      background: var(--surface);
+      border-radius: 8px; padding: 16px;
+      font-size: 14px; color: var(--body);
+      line-height: 1.6;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+    }
+    .ai-input-area {
+      height: 56px;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center;
+      padding: 0 16px;
+    }
+    .ai-input {
+      flex: 1;
+      background: transparent; border: none;
+      font-size: 14px; font-family: inherit;
+      color: var(--ink);
+    }
+    .ai-input:focus { outline: none; }
+    .ai-input::placeholder { color: var(--muted); }
+    .ai-send {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: none;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; cursor: pointer;
+    }
+
+    @media (max-width: 1024px) {
+      .service-item, .service-item.reverse {
+        grid-template-columns: 1fr;
+      }
+      .project-card, .project-card.reverse {
+        grid-template-columns: 1fr;
+      }
+      .founder-section {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .founder-portrait {
+        max-width: 300px; margin: 0 auto;
+      }
+    }
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hero-title { font-size: 40px; }
+      .hero { padding: 120px 24px 60px; }
+      .story-section { padding: 60px 24px; }
+      .services-section, .projects-section { padding: 60px 24px; }
+      .contact-section { padding: 60px 24px; }
+      .ai-panel { width: 100vw; right: 0; border-radius: 8px 8px 0 0; }
+    }
+
+    .reveal {
+      opacity: 0; transform: translateY(30px);
+      transition: all 0.6s ease;
+    }
+    .reveal.visible {
+      opacity: 1; transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav">
+    <a href="#" class="nav-logo">Metanoia</a>
+    <div class="nav-links">
+      <a href="#story" class="nav-link">故事</a>
+      <a href="#services" class="nav-link">服务</a>
+      <a href="#projects" class="nav-link">项目</a>
+      <a href="#founder" class="nav-link">关于</a>
+      <a href="#contact" class="nav-link">联系</a>
+    </div>
+    <a href="#contact" class="nav-cta">联系我们</a>
+  </nav>
+
+  <section class="hero" id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-label">启明科技 · Metanoia</div>
+      <h1 class="hero-title">在黑暗中<br>寻找光明</h1>
+      <p class="hero-subtitle">一家年轻的 AI 技术公司。我们相信技术的意义，在于解决问题、创造价值。</p>
+      <div class="hero-ctas">
+        <a href="#story" class="btn-primary">了解我们的故事</a>
+        <a href="#contact" class="btn-secondary">取得联系</a>
+      </div>
+    </div>
+    <div class="scroll-hint">向下滚动 ↓</div>
+  </section>
+
+  <section class="story-section" id="story">
+    <div class="reveal">
+      <p>启明科技的诞生，源于一个简单的信念：技术在黑暗中寻找光明。</p>
+      <p>在这个 AI 浪潮席卷一切的时代，我们看到了太多炫技，却太少真正的解决问题。于是，我们决定做一家不一样的公司——不只写代码，更创造价值；不只追求前沿，更关注人的需求。</p>
+    </div>
+    <div class="story-quote reveal">
+      <p>Metanoia 在希腊语中意为「蜕变、觉醒」。这也是我们的信念：每一次技术的突破，都是一次重生。</p>
+      <p class="author">— JiaWen，创始人</p>
+    </div>
+    <div class="reveal">
+      <p>从第一个项目 SpireGuide 开始，到 HYROS Fit、JD Review Scraper，再到如今为更多企业定制 AI 解决方案——我们始终在用代码和创意，为行业注入新的生命力。</p>
+    </div>
+  </section>
+
+  <section class="services-section" id="services">
+    <div class="service-item reveal">
+      <div class="service-image">⌘</div>
+      <div class="service-content">
+        <div class="label">全栈技术</div>
+        <h3>从前端到后端，<br>从 API 到 AI</h3>
+        <p>Irra 带领技术团队交付高质量代码。Python、React、Next.js、Node.js——我们用最适合的工具，解决最实际的问题。</p>
+      </div>
+    </div>
+    <div class="service-item reverse reveal">
+      <div class="service-content">
+        <div class="label">视觉设计</div>
+        <h3>让产品既有美感<br>又好用</h3>
+        <p>Mery 主导设计部，从品牌视觉到交互体验。我们不只出概念图，每一份设计稿都必须可落地、可开发。</p>
+      </div>
+      <div class="service-image">✦</div>
+    </div>
+    <div class="service-item reveal">
+      <div class="service-image">◈</div>
+      <div class="service-content">
+        <div class="label">智能赋能</div>
+        <h3>将 AI 融入<br>业务流程</h3>
+        <p>自动化、智能化、数据驱动决策。我们用 LLM、向量数据库和智能分析，为企业打造真正的 AI 竞争力。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="projects-section" id="projects">
+    <div class="projects-header reveal">
+      <h2>我们的项目</h2>
+      <p>从概念到上线，每一个项目都是一次重生</p>
+    </div>
+    <div class="project-card reveal">
+      <div class="project-visual">🗼</div>
+      <div class="project-info">
+        <div class="project-label">智能导航</div>
+        <div class="project-name">SpireGuide</div>
+        <p class="project-desc">用 AI 重新定义路径规划，为城市出行提供智能导航解决方案。</p>
+        <a href="#" class="project-link">查看详情 →</a>
+      </div>
+    </div>
+    <div class="project-card reverse reveal">
+      <div class="project-info">
+        <div class="project-label">健康管理</div>
+        <div class="project-name">HYROS Fit</div>
+        <p class="project-desc">AI 驱动的健康管理平台，用数据守护每一次运动。</p>
+        <a href="#" class="project-link">查看详情 →</a>
+      </div>
+      <div class="project-visual">💪</div>
+    </div>
+    <div class="project-card reveal">
+      <div class="project-visual">📊</div>
+      <div class="project-info">
+        <div class="project-label">数据自动化</div>
+        <div class="project-name">JD Review Scraper</div>
+        <p class="project-desc">自动化京东评论采集与分析工具，让数据获取不再繁琐。</p>
+        <a href="#" class="project-link">查看详情 →</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="founder-section" id="founder">
+    <div class="founder-portrait reveal">J</div>
+    <div class="founder-content">
+      <div class="label">创始人</div>
+      <h2>JiaWen</h2>
+      <div class="founder-role">创始人 & CEO</div>
+      <p class="founder-bio">从一名热爱技术的探索者，到带领启明科技不断前行的创始人。她相信：技术的意义不在于炫技，而在于解决问题、创造价值。</p>
+      <div class="founder-quote">
+        每一次技术的突破，都是一次重生。
+      </div>
+    </div>
+  </section>
+
+  <section class="contact-section" id="contact">
+    <h2 class="reveal">让我们一起创造</h2>
+    <p class="reveal">无论是技术咨询、设计合作，还是仅仅想聊聊 AI</p>
+    <form onsubmit="return false;" class="reveal">
+      <input type="text" class="form-input" placeholder="你的姓名">
+      <input type="email" class="form-input" placeholder="邮箱地址">
+      <textarea class="form-input" placeholder="告诉我们你的需求..."></textarea>
+      <button type="submit" class="form-submit">发送消息</button>
+    </form>
+    <a href="mailto:hello@metanoia.tech" class="contact-email">hello@metanoia.tech</a>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-logo">Metanoia</div>
+    <div class="footer-tagline">探索 · 蜕变 · 重生</div>
+    <div class="footer-links">
+      <a href="#">业务</a>
+      <a href="#">项目</a>
+      <a href="#">关于</a>
+      <a href="#">联系</a>
+    </div>
+    <div class="footer-copyright">© 2026 Metanoia 启明科技 · Designed by Mery</div>
+  </footer>
+
+  <div class="ai-bubble" onclick="toggleAI()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+    </svg>
+  </div>
+
+  <div class="ai-panel" id="aiPanel">
+    <div class="ai-header">
+      <span>Metanoia AI 助手</span>
+      <span class="ai-close" onclick="toggleAI()">×</span>
+    </div>
+    <div class="ai-messages">
+      <div class="ai-welcome">
+        你好 👋 我是启明科技的 AI 助手。想了解我们的技术能力、查看项目案例，或直接与团队取得联系？随时问我！
+      </div>
+    </div>
+    <div class="ai-input-area">
+      <input type="text" class="ai-input" placeholder="输入你的问题...">
+      <button class="ai-send">→</button>
+    </div>
+  </div>
+
+  <script>
+    function toggleAI() {
+      const panel = document.getElementById('aiPanel');
+      panel.classList.toggle('open');
+    }
+    document.addEventListener('click', function(e) {
+      const panel = document.getElementById('aiPanel');
+      const bubble = document.querySelector('.ai-bubble');
+      if (panel.classList.contains('open') && !panel.contains(e.target) && !bubble.contains(e.target)) {
+        panel.classList.remove('open');
+      }
+    });
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    reveals.forEach(el => observer.observe(el));
+  </script>
+
+</body>
+</html>

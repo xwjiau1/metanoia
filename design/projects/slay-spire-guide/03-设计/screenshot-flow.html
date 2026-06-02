@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>截图问答流程演示 - 尖塔智囊</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'spire-bg': '#0d1117',
+                        'spire-surface': '#161b22',
+                        'spire-surface-light': '#1c2128',
+                        'spire-border': '#30363d',
+                        'spire-accent': '#ff7b00',
+                        'spire-accent-hover': '#ff9933',
+                        'spire-text': '#e6edf3',
+                        'spire-text-dim': '#8b949e',
+                        'spire-green': '#58a6ff',
+                        'spire-card-bg': '#21262d',
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'fade-in': 'fadeIn 0.4s ease-out',
+                        'slide-up': 'slideUp 0.4s ease-out',
+                        'typing': 'typing 1.5s steps(20, end)',
+                        'blink': 'blink 1s step-end infinite',
+                        'scan-line': 'scanLine 2s ease-in-out',
+                        'float': 'float 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        scanLine: {
+                            '0%': { top: '0%' },
+                            '50%': { top: '100%' },
+                            '100%': { top: '0%' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-6px)' },
+                        },
+                        typing: {
+                            '0%': { width: '0' },
+                            '100%': { width: '100%' },
+                        },
+                        blink: {
+                            '50%': { borderColor: 'transparent' },
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+        .spire-panel {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+        }
+        .step-connector {
+            background: linear-gradient(180deg, #ff7b00 0%, #30363d 100%);
+        }
+        .step-connector.active {
+            background: linear-gradient(180deg, #ff7b00 0%, #ff9933 100%);
+        }
+        .screenshot-mock {
+            background: linear-gradient(135deg, #1a2332 0%, #0d1520 50%, #1a2332 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .screenshot-mock::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='20' fill='%23ff7b0030'%3E⚔️%3C/text%3E%3C/svg%3E") repeat;
+            opacity: 0.3;
+        }
+        .scan-overlay {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ff7b00, transparent);
+            box-shadow: 0 0 8px #ff7b00;
+            animation: scanLine 2s ease-in-out infinite;
+        }
+        .energy-dot {
+            width: 14px; height: 14px; border-radius: 50%;
+            background: #ff7b00;
+            box-shadow: 0 0 6px #ff7b00;
+        }
+        .card-slot {
+            width: 60px; height: 80px;
+            background: linear-gradient(135deg, #21262d, #161b22);
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #8b949e;
+        }
+        .typing-cursor::after {
+            content: '|';
+            animation: blink 1s step-end infinite;
+            color: #ff7b00;
+        }
+    </style>
+</head>
+<body class="bg-spire-bg text-spire-text font-sans antialiased min-h-screen">
+
+    <!-- Header -->
+    <header class="border-b border-spire-border bg-spire-surface/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-[1400px] mx-auto px-4 h-14 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="flex items-center gap-2 text-spire-text-dim hover:text-spire-accent transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
+                    <span class="text-sm">返回首页</span>
+                </a>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-spire-accent flex items-center justify-center font-bold text-spire-bg text-sm">S</div>
+                <h1 class="font-bold text-lg tracking-tight">
+                    尖塔<span class="text-spire-accent">智囊</span>
+                    <span class="text-xs text-spire-text-dim font-normal ml-2">截图问答流程演示</span>
+                </h1>
+            </div>
+            <div></div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-[1400px] mx-auto px-4 py-8">
+
+        <!-- Title Section -->
+        <div class="text-center mb-10">
+            <h2 class="text-2xl font-bold mb-2">🖼️ 截图问答完整流程</h2>
+            <p class="text-spire-text-dim text-sm max-w-xl mx-auto">
+                从截图上传到 AI 识别分析，再到策略建议返回的完整交互演示。点击「开始演示」查看流程。
+            </p>
+            <button id="startBtn" onclick="startDemo()" class="mt-4 px-6 py-2.5 rounded-lg bg-spire-accent text-spire-bg font-semibold hover:bg-spire-accent-hover transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-spire-accent/20">
+                ▶ 开始演示
+            </button>
+            <button id="resetBtn" onclick="resetDemo()" class="mt-4 ml-3 px-6 py-2.5 rounded-lg border border-spire-border text-spire-text-dim hover:border-spire-accent hover:text-spire-accent transition-all hidden">
+                ↻ 重新开始
+            </button>
+        </div>
+
+        <!-- Flow Steps -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 relative">
+
+            <!-- Step 1: Screenshot Upload -->
+            <div id="step1" class="spire-panel p-5 opacity-50 transition-all duration-500">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-full bg-spire-accent/10 border-2 border-spire-accent flex items-center justify-center font-bold text-spire-accent text-sm step-number">
+                        1
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-sm">截图上传</h3>
+                        <p class="text-[10px] text-spire-text-dim">玩家截取当前游戏画面</p>
+                    </div>
+                </div>
+
+                <div class="screenshot-mock rounded-lg p-4 h-48 flex flex-col items-center justify-center relative" id="screenshotArea">
+                    <!-- Game UI Mockup -->
+                    <div class="absolute inset-0 flex flex-col p-3">
+                        <!-- Top bar -->
+                        <div class="flex justify-between items-center mb-2">
+                            <div class="flex items-center gap-1.5">
+                                <div class="w-5 h-5 rounded bg-purple-500/30 flex items-center justify-center text-[8px]">💀</div>
+                                <span class="text-[10px] text-spire-text-dim">Necrobinder</span>
+                            </div>
+                            <div class="text-[10px] text-spire-text-dim">Act 1 · Floor 12</div>
+                        </div>
+                        <!-- Enemy area -->
+                        <div class="flex justify-center gap-4 mb-3">
+                            <div class="text-center">
+                                <div class="w-10 h-10 rounded bg-red-500/20 flex items-center justify-center text-lg mb-1">👹</div>
+                                <div class="text-[8px] text-red-400">HP: 35/45</div>
+                                <div class="text-[7px] text-spire-text-dim mt-0.5">⚔️ 12</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-10 h-10 rounded bg-red-500/20 flex items-center justify-center text-lg mb-1">🐀</div>
+                                <div class="text-[8px] text-red-400">HP: 20/25</div>
+                                <div class="text-[7px] text-spire-text-dim mt-0.5">⚔️ 8</div>
+                            </div>
+                        </div>
+                        <!-- Player area -->
+                        <div class="mt-auto">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="text-[10px]">❤️ 45/68</div>
+                                <div class="text-[10px]">🛡️ 0</div>
+                                <div class="flex items-center gap-1 ml-auto">
+                                    <span class="text-[10px] text-spire-accent font-bold">3</span>
+                                    <div class="flex gap-0.5">
+                                        <div class="energy-dot"></div>
+                                        <div class="energy-dot"></div>
+                                        <div class="energy-dot" style="opacity:0.3"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Hand cards -->
+                            <div class="flex justify-center gap-2">
+                                <div class="card-slot">⚔️<br><span class="text-[7px]">打击</span></div>
+                                <div class="card-slot">🛡️<br><span class="text-[7px]">防御</span></div>
+                                <div class="card-slot">💀<br><span class="text-[7px]">骨矛</span></div>
+                                <div class="card-slot">❤️<br><span class="text-[7px]">祭品</span></div>
+                                <div class="card-slot">✨<br><span class="text-[7px]">诅咒</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Scan overlay (hidden initially) -->
+                    <div id="scanOverlay" class="absolute inset-0 bg-spire-accent/5 hidden">
+                        <div class="scan-overlay"></div>
+                    </div>
+                    <!-- Upload indicator -->
+                    <div id="uploadIndicator" class="absolute inset-0 bg-spire-bg/80 rounded-lg flex items-center justify-center hidden">
+                        <div class="text-center">
+                            <div class="w-10 h-10 border-3 border-spire-accent border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                            <p class="text-xs text-spire-accent">上传中...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3 flex items-center gap-2">
+                    <div class="flex-1 h-1.5 bg-spire-bg rounded-full overflow-hidden">
+                        <div id="progress1" class="h-full bg-spire-accent rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <span id="status1" class="text-[10px] text-spire-text-dim w-16 text-right">等待中</span>
+                </div>
+            </div>
+
+            <!-- Arrow connector (desktop) -->
+            <div class="hidden lg:flex items-center justify-center absolute left-[33.33%] top-1/2 -translate-y-1/2 w-[33.33%] pointer-events-none">
+                <div id="arrow1" class="w-full h-0.5 bg-spire-border relative opacity-30 transition-all duration-500">
+                    <div class="absolute right-0 -top-1 w-0 h-0 border-l-[6px] border-l-spire-border border-y-[3px] border-y-transparent"></div>
+                </div>
+            </div>
+
+            <!-- Step 2: AI Recognition -->
+            <div id="step2" class="spire-panel p-5 opacity-50 transition-all duration-500">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-full bg-spire-accent/10 border-2 border-spire-border flex items-center justify-center font-bold text-spire-text-dim text-sm step-number">
+                        2
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-sm">AI 智能识别</h3>
+                        <p class="text-[10px] text-spire-text-dim">分析截图中的游戏状态</p>
+                    </div>
+                </div>
+
+                <!-- Recognition Details -->
+                <div class="space-y-2.5">
+                    <div class="bg-spire-bg rounded-lg p-3 border border-spire-border/50">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] text-spire-text-dim uppercase tracking-wider">识别结果</span>
+                            <span id="recognitionStatus" class="text-[10px] px-1.5 py-0.5 rounded bg-spire-bg border border-spire-border text-spire-text-dim">
+                                等待截图
+                            </span>
+                        </div>
+                        <div id="recognitionDetails" class="space-y-1.5 opacity-30">
+                            <div class="flex justify-between text-xs">
+                                <span class="text-spire-text-dim">游戏版本</span>
+                                <span class="font-medium">杀戮尖塔 2 (Early Access)</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-spire-text-dim">当前角色</span>
+                                <span class="font-medium">Necrobinder</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-spire-text-dim">当前场景</span>
+                                <span class="font-medium">战斗 - 普通遭遇</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-spire-text-dim">回合数</span>
+                                <span class="font-medium">第 3 回合</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-spire-text-dim">可用能量</span>
+                                <span class="font-medium text-spire-accent">3 / 3</span>
+                            </div>
+                            <div class="h-px bg-spire-border/50 my-2"></div>
+                            <div class="text-[10px] text-spire-text-dim">识别到的手牌：</div>
+                            <div class="flex flex-wrap gap-1">
+                                <span class="px-2 py-0.5 rounded bg-spire-surface-light text-[10px] border border-spire-border">打击 ×2</span>
+                                <span class="px-2 py-0.5 rounded bg-spire-surface-light text-[10px] border border-spire-border">防御</span>
+                                <span class="px-2 py-0.5 rounded bg-spire-accent/10 text-[10px] border border-spire-accent/30 text-spire-accent">骨矛</span>
+                                <span class="px-2 py-0.5 rounded bg-spire-accent/10 text-[10px] border border-spire-accent/30 text-spire-accent">祭品</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Processing animation -->
+                    <div id="processingAnim" class="hidden">
+                        <div class="bg-spire-bg rounded-lg p-3 border border-spire-border/50">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-spire-accent/10 flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-spire-accent animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-medium">正在分析最优策略...</p>
+                                    <p class="text-[10px] text-spire-text-dim typing-cursor" id="typingText">评估出牌组合</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3 flex items-center gap-2">
+                    <div class="flex-1 h-1.5 bg-spire-bg rounded-full overflow-hidden">
+                        <div id="progress2" class="h-full bg-spire-accent rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <span id="status2" class="text-[10px] text-spire-text-dim w-16 text-right">等待中</span>
+                </div>
+            </div>
+
+            <!-- Arrow connector (desktop) -->
+            <div class="hidden lg:flex items-center justify-center absolute left-[66.66%] top-1/2 -translate-y-1/2 w-[33.33%] pointer-events-none">
+                <div id="arrow2" class="w-full h-0.5 bg-spire-border relative opacity-30 transition-all duration-500">
+                    <div class="absolute right-0 -top-1 w-0 h-0 border-l-[6px] border-l-spire-border border-y-[3px] border-y-transparent"></div>
+                </div>
+            </div>
+
+            <!-- Step 3: Strategy Response -->
+            <div id="step3" class="spire-panel p-5 opacity-50 transition-all duration-500">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-full bg-spire-accent/10 border-2 border-spire-border flex items-center justify-center font-bold text-spire-text-dim text-sm step-number">
+                        3
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-sm">策略建议</h3>
+                        <p class="text-[10px] text-spire-text-dim">AI 给出出牌顺序和决策理由</p>
+                    </div>
+                </div>
+
+                <!-- Strategy Card -->
+                <div id="strategyCard" class="opacity-30">
+                    <div class="bg-spire-bg rounded-lg border border-spire-border/50 overflow-hidden">
+                        <!-- Header -->
+                        <div class="px-3 py-2 border-b border-spire-border/50 flex items-center gap-2">
+                            <div class="w-5 h-5 rounded bg-spire-accent/10 flex items-center justify-center">
+                                <svg class="w-3 h-3 text-spire-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+                            </div>
+                            <span class="text-xs font-medium">推荐出牌顺序</span>
+                        </div>
+
+                        <!-- Steps -->
+                        <div class="p-3 space-y-2">
+                            <div class="flex items-start gap-2.5">
+                                <div class="w-6 h-6 rounded bg-spire-accent flex items-center justify-center text-spire-bg font-bold text-xs flex-shrink-0 mt-0.5">1</div>
+                                <div>
+                                    <p class="text-xs font-medium">祭品</p>
+                                    <p class="text-[10px] text-spire-text-dim">消耗 1 血，获得 2 点能量</p>
+                                    <p class="text-[10px] text-spire-accent mt-0.5">💡 先手过牌+能量，为后续输出铺垫</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-2.5">
+                                <div class="w-6 h-6 rounded bg-spire-accent flex items-center justify-center text-spire-bg font-bold text-xs flex-shrink-0 mt-0.5">2</div>
+                                <div>
+                                    <p class="text-xs font-medium">骨矛 → 尖塔哨兵 (👹)</p>
+                                    <p class="text-[10px] text-spire-text-dim">消耗 1 能量，造成 8 伤害</p>
+                                    <p class="text-[10px] text-spire-accent mt-0.5">💡 骨矛有穿透效果，可同时伤害到后方</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-2.5">
+                                <div class="w-6 h-6 rounded bg-spire-accent flex items-center justify-center text-spire-bg font-bold text-xs flex-shrink-0 mt-0.5">3</div>
+                                <div>
+                                    <p class="text-xs font-medium">打击 → 尖塔哨兵 (👹)</p>
+                                    <p class="text-[10px] text-spire-text-dim">消耗 1 能量，造成 6 伤害</p>
+                                    <p class="text-[10px] text-spire-accent mt-0.5">💡 先击杀高威胁目标，减少下回合承受伤害</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-2.5">
+                                <div class="w-6 h-6 rounded bg-spire-surface-light border border-spire-border flex items-center justify-center text-spire-text-dim font-bold text-xs flex-shrink-0 mt-0.5">4</div>
+                                <div>
+                                    <p class="text-xs font-medium text-spire-text-dim">防御（结束回合）</p>
+                                    <p class="text-[10px] text-spire-text-dim">获得 5 格挡</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Summary -->
+                        <div class="px-3 py-2 bg-spire-accent/5 border-t border-spire-border/50">
+                            <p class="text-[10px] text-spire-text-dim">
+                                <span class="text-spire-accent font-medium">预期结果：</span>击杀尖塔哨兵，剩余 5 格挡承受巨鼠 8 点攻击 → 实际扣血 3 点
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Alternative -->
+                    <div class="mt-2 bg-spire-bg rounded-lg p-3 border border-spire-border/50">
+                        <p class="text-[10px] text-spire-text-dim mb-1.5">
+                            <span class="text-spire-accent">方案 B：</span>如果希望更保守
+                        </p>
+                        <p class="text-[10px] text-spire-text-dim leading-relaxed">
+                            先「防御」获得格挡，再「祭品」过牌，下回合有更多选择空间。适合血量较低或未知敌人意图时。
+                        </p>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex gap-2 mt-3">
+                        <button class="flex-1 py-2 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 text-xs font-medium hover:bg-green-500/20 transition-colors flex items-center justify-center gap-1.5">
+                            <span>👍</span> 有帮助
+                        </button>
+                        <button class="flex-1 py-2 rounded-lg bg-spire-bg border border-spire-border text-spire-text-dim text-xs hover:border-spire-accent hover:text-spire-accent transition-colors">
+                            追问详情
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-3 flex items-center gap-2">
+                    <div class="flex-1 h-1.5 bg-spire-bg rounded-full overflow-hidden">
+                        <div id="progress3" class="h-full bg-spire-accent rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <span id="status3" class="text-[10px] text-spire-text-dim w-16 text-right">等待中</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline (Mobile) -->
+        <div class="lg:hidden mt-8 flex justify-center">
+            <div class="flex items-center gap-4">
+                <div id="mobStep1" class="w-3 h-3 rounded-full bg-spire-border"></div>
+                <div id="mobArrow1" class="w-12 h-0.5 bg-spire-border"></div>
+                <div id="mobStep2" class="w-3 h-3 rounded-full bg-spire-border"></div>
+                <div id="mobArrow2" class="w-12 h-0.5 bg-spire-border"></div>
+                <div id="mobStep3" class="w-3 h-3 rounded-full bg-spire-border"></div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="mt-10 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="spire-panel p-4 text-center">
+                <div class="text-2xl font-bold text-spire-accent mb-1">~3 秒</div>
+                <div class="text-xs text-spire-text-dim">截图上传时间</div>
+            </div>
+            <div class="spire-panel p-4 text-center">
+                <div class="text-2xl font-bold text-spire-accent mb-1">~5 秒</div>
+                <div class="text-xs text-spire-text-dim">画面识别耗时</div>
+            </div>
+            <div class="spire-panel p-4 text-center">
+                <div class="text-2xl font-bold text-spire-accent mb-1">~8 秒</div>
+                <div class="text-xs text-spire-text-dim">策略生成耗时</div>
+            </div>
+            <div class="spire-panel p-4 text-center">
+                <div class="text-2xl font-bold text-spire-accent mb-1">≤15 秒</div>
+                <div class="text-xs text-spire-text-dim">总响应时间目标</div>
+            </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="mt-8 spire-panel p-5">
+            <h3 class="font-semibold text-sm mb-3">💡 使用小贴士</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-spire-text-dim">
+                <div class="flex items-start gap-2">
+                    <span class="text-spire-accent flex-shrink-0">1.</span>
+                    <p>截图时尽量包含完整的手牌区域和敌人信息，这样 AI 能给出更精准的建议。</p>
+                </div>
+                <div class="flex items-start gap-2">
+                    <span class="text-spire-accent flex-shrink-0">2.</span>
+                    <p>支持 StS1 和 StS2 两代游戏截图，AI 会自动识别当前游戏版本。</p>
+                </div>
+                <div class="flex items-start gap-2">
+                    <span class="text-spire-accent flex-shrink-0">3.</span>
+                    <p>可以直接在输入框追问"如果我不拿这张牌呢？"，AI 会给出对比分析。</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let demoRunning = false;
+        let demoStep = 0;
+
+        function startDemo() {
+            if (demoRunning) return;
+            demoRunning = true;
+            document.getElementById('startBtn').classList.add('hidden');
+            document.getElementById('resetBtn').classList.remove('hidden');
+
+            // Step 1: Upload
+            setTimeout(() => activateStep(1), 200);
+            setTimeout(() => {
+                document.getElementById('uploadIndicator').classList.remove('hidden');
+                document.getElementById('progress1').style.width = '50%';
+                document.getElementById('status1').textContent = '上传中...';
+            }, 600);
+            setTimeout(() => {
+                document.getElementById('uploadIndicator').classList.add('hidden');
+                document.getElementById('scanOverlay').classList.remove('hidden');
+                document.getElementById('progress1').style.width = '100%';
+                document.getElementById('status1').textContent = '✓ 完成';
+                document.getElementById('status1').classList.add('text-spire-accent');
+            }, 1800);
+
+            // Step 2: Recognition
+            setTimeout(() => {
+                activateStep(2);
+                document.getElementById('recognitionStatus').textContent = '识别中...';
+                document.getElementById('recognitionStatus').classList.add('text-spire-accent', 'border-spire-accent/30');
+                document.getElementById('progress2').style.width = '40%';
+                document.getElementById('status2').textContent = '分析中...';
+            }, 2500);
+            setTimeout(() => {
+                document.getElementById('recognitionDetails').style.opacity = '1';
+                document.getElementById('recognitionStatus').textContent = '✓ 已识别';
+                document.getElementById('recognitionStatus').classList.remove('text-spire-accent', 'border-spire-accent/30');
+                document.getElementById('recognitionStatus').classList.add('text-green-400', 'border-green-500/30', 'bg-green-500/10');
+                document.getElementById('progress2').style.width = '70%';
+            }, 4000);
+            setTimeout(() => {
+                document.getElementById('processingAnim').classList.remove('hidden');
+                document.getElementById('processingAnim').classList.add('animate-fade-in');
+                typeWriter('typingText', ['评估出牌组合', '计算伤害数值', '分析敌人意图', '生成策略建议'], 0);
+            }, 4500);
+            setTimeout(() => {
+                document.getElementById('progress2').style.width = '100%';
+                document.getElementById('status2').textContent = '✓ 完成';
+                document.getElementById('status2').classList.add('text-spire-accent');
+            }, 6500);
+
+            // Step 3: Response
+            setTimeout(() => {
+                activateStep(3);
+                document.getElementById('strategyCard').style.opacity = '1';
+                document.getElementById('strategyCard').classList.add('animate-slide-up');
+                document.getElementById('progress3').style.width = '100%';
+                document.getElementById('status3').textContent = '✓ 完成';
+                document.getElementById('status3').classList.add('text-spire-accent');
+            }, 7000);
+        }
+
+        function activateStep(n) {
+            const step = document.getElementById('step' + n);
+            step.style.opacity = '1';
+            step.classList.add('ring-1', 'ring-spire-accent/30');
+            step.querySelector('.step-number').classList.add('bg-spire-accent', 'text-spire-bg', 'border-spire-accent');
+            step.querySelector('.step-number').classList.remove('bg-spire-accent/10', 'text-spire-text-dim', 'border-spire-border');
+
+            if (n > 1) {
+                const arrow = document.getElementById('arrow' + (n-1));
+                if (arrow) {
+                    arrow.style.opacity = '1';
+                    arrow.classList.add('bg-spire-accent');
+                }
+            }
+
+            // Mobile indicators
+            const mobStep = document.getElementById('mobStep' + n);
+            if (mobStep) {
+                mobStep.classList.add('bg-spire-accent');
+                mobStep.classList.remove('bg-spire-border');
+            }
+            if (n > 1) {
+                const mobArrow = document.getElementById('mobArrow' + (n-1));
+                if (mobArrow) mobArrow.classList.add('bg-spire-accent');
+            }
+        }
+
+        function typeWriter(elementId, texts, index) {
+            const el = document.getElementById(elementId);
+            if (index >= texts.length) {
+                el.textContent = '分析完成';
+                return;
+            }
+            el.textContent = texts[index];
+            setTimeout(() => typeWriter(elementId, texts, index + 1), 600);
+        }
+
+        function resetDemo() {
+            location.reload();
+        }
+    </script>
+</body>
+</html>

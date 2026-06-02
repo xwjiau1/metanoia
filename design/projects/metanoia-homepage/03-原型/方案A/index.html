@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Metanoia 启明科技 — 方案A：温暖人文</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --c-canvas: #faf9f5;
+      --c-canvas-soft: #f5f0e8;
+      --c-card: #efe9de;
+      --c-ink: #141413;
+      --c-body: #3d3d3a;
+      --c-muted: #6c6a64;
+      --c-muted-light: #8e8b82;
+      --c-border: #e6dfd8;
+      --c-primary: #cc785c;
+      --c-primary-deep: #a9583e;
+      --c-primary-disabled: #e6dfd8;
+      --c-dark-surface: #181715;
+      --c-dark-elevated: #252320;
+      --c-dark-muted: #a09d96;
+      --c-white: #ffffff;
+      --c-accent-amber: #e8a55a;
+      --c-accent-celadon: #5db8a6;
+      --c-success: #5db872;
+      --c-warning: #d4a017;
+      --c-error: #c64545;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--c-canvas);
+      color: var(--c-body);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ===== 导航 ===== */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 64px;
+      background: rgba(250, 249, 245, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--c-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      z-index: 1000;
+      transition: background 0.3s ease;
+    }
+
+    .nav-logo {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--c-ink);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-logo svg {
+      width: 24px; height: 24px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+    }
+
+    .nav-link {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--c-ink);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .nav-link:hover { color: var(--c-primary); }
+
+    .nav-cta {
+      background: var(--c-primary);
+      color: var(--c-white);
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: background 0.2s ease;
+    }
+
+    .nav-cta:hover { background: var(--c-primary-deep); }
+
+    /* ===== Hero ===== */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 120px 32px 80px;
+      background: linear-gradient(135deg, var(--c-dark-surface) 0%, var(--c-canvas) 60%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      opacity: 0.03;
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: var(--c-primary);
+      color: var(--c-white);
+      padding: 6px 16px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 32px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.2s forwards;
+    }
+
+    .hero-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 56px;
+      font-weight: 400;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      color: var(--c-ink);
+      margin-bottom: 24px;
+      max-width: 800px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.4s forwards;
+    }
+
+    .hero-subtitle {
+      font-size: 18px;
+      color: var(--c-muted);
+      max-width: 560px;
+      margin-bottom: 40px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.6s forwards;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 16px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.8s forwards;
+    }
+
+    .btn-primary {
+      background: var(--c-primary);
+      color: var(--c-white);
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary:hover {
+      background: var(--c-primary-deep);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(204, 120, 92, 0.3);
+    }
+
+    .btn-secondary {
+      background: var(--c-canvas);
+      color: var(--c-ink);
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      text-decoration: none;
+      border: 1px solid var(--c-border);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--c-muted);
+      transform: translateY(-2px);
+    }
+
+    .hero-butterfly {
+      position: absolute;
+      top: 15%;
+      right: 10%;
+      width: 180px;
+      height: 180px;
+      opacity: 0.12;
+      animation: float 6s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(5deg); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== 业务板块 ===== */
+    .section {
+      padding: 96px 32px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 40px;
+      font-weight: 400;
+      line-height: 1.12;
+      letter-spacing: -0.02em;
+      color: var(--c-ink);
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .section-subtitle {
+      font-size: 18px;
+      color: var(--c-muted);
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .card {
+      background: var(--c-card);
+      border-radius: 12px;
+      padding: 32px;
+      transition: all 0.3s ease;
+      border: 1px solid transparent;
+    }
+
+    .card:hover {
+      border-color: var(--c-border);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    }
+
+    .card-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+
+    .card-icon.coral { background: rgba(204, 120, 92, 0.15); color: var(--c-primary); }
+    .card-icon.amber { background: rgba(232, 165, 90, 0.15); color: var(--c-accent-amber); }
+    .card-icon.celadon { background: rgba(93, 184, 166, 0.15); color: var(--c-accent-celadon); }
+
+    .card-title {
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--c-ink);
+      margin-bottom: 12px;
+    }
+
+    .card-desc {
+      font-size: 16px;
+      color: var(--c-body);
+      margin-bottom: 20px;
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 1.2px;
+      color: var(--c-muted);
+      background: var(--c-canvas);
+      padding: 4px 10px;
+      border-radius: 9999px;
+    }
+
+    /* ===== 项目展示（暗色区域） ===== */
+    .dark-section {
+      background: var(--c-dark-surface);
+      padding: 96px 32px;
+    }
+
+    .dark-section .section-title {
+      color: var(--c-canvas);
+    }
+
+    .dark-section .section-subtitle {
+      color: var(--c-dark-muted);
+    }
+
+    .project-card {
+      background: var(--c-dark-elevated);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .project-card:hover {
+      transform: translateY(-4px);
+      border: 1px solid var(--c-border);
+    }
+
+    .project-visual {
+      height: 200px;
+      background: linear-gradient(135deg, #2a2520 0%, #3d3530 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      color: var(--c-dark-muted);
+    }
+
+    .project-info {
+      padding: 24px;
+    }
+
+    .project-name {
+      font-size: 24px;
+      font-weight: 500;
+      color: var(--c-canvas);
+      margin-bottom: 8px;
+    }
+
+    .project-desc {
+      font-size: 16px;
+      color: var(--c-dark-muted);
+      margin-bottom: 16px;
+    }
+
+    .project-link {
+      font-size: 14px;
+      color: var(--c-primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .project-link:hover { text-decoration: underline; }
+
+    /* ===== 运营数据 ===== */
+    .numbers-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 48px;
+      text-align: center;
+    }
+
+    .number-item {
+      position: relative;
+    }
+
+    .number-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      right: -24px;
+      top: 20%;
+      bottom: 20%;
+      width: 1px;
+      background: var(--c-border);
+    }
+
+    .number-value {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 56px;
+      font-weight: 400;
+      color: var(--c-ink);
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+
+    .number-value.accent { color: var(--c-primary); }
+
+    .number-label {
+      font-size: 16px;
+      color: var(--c-muted);
+    }
+
+    /* ===== 笔记/洞察 ===== */
+    .insights-section {
+      background: var(--c-canvas-soft);
+      padding: 96px 32px;
+    }
+
+    .insights-section .section-title {
+      text-align: left;
+    }
+
+    .insights-section .section-subtitle {
+      text-align: left;
+    }
+
+    .blog-card {
+      background: var(--c-canvas);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .blog-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    .blog-cover {
+      height: 180px;
+      background: linear-gradient(135deg, var(--c-card) 0%, var(--c-border) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .blog-cover::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.05) 100%);
+    }
+
+    .blog-tag {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      background: var(--c-card);
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--c-muted);
+    }
+
+    .blog-content {
+      padding: 24px;
+    }
+
+    .blog-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--c-ink);
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .blog-excerpt {
+      font-size: 14px;
+      color: var(--c-muted);
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .blog-date {
+      font-size: 12px;
+      color: var(--c-muted-light);
+    }
+
+    /* ===== CEO简历 ===== */
+    .founder-section {
+      padding: 96px 32px;
+    }
+
+    .founder-layout {
+      display: grid;
+      grid-template-columns: 40% 60%;
+      gap: 48px;
+      max-width: 1200px;
+      margin: 0 auto;
+      align-items: center;
+    }
+
+    .founder-avatar {
+      aspect-ratio: 1;
+      background: linear-gradient(135deg, var(--c-card) 0%, var(--c-border) 100%);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Noto Serif SC', serif;
+      font-size: 120px;
+      font-weight: 400;
+      color: var(--c-muted);
+      border: 1px solid var(--c-border);
+    }
+
+    .founder-content .section-title {
+      text-align: left;
+      margin-bottom: 8px;
+    }
+
+    .founder-name {
+      font-size: 24px;
+      font-weight: 500;
+      color: var(--c-ink);
+      margin-bottom: 4px;
+    }
+
+    .founder-role {
+      font-size: 18px;
+      color: var(--c-muted);
+      margin-bottom: 24px;
+    }
+
+    .founder-bio {
+      font-size: 16px;
+      color: var(--c-body);
+      margin-bottom: 24px;
+      line-height: 1.7;
+    }
+
+    .founder-quote {
+      background: var(--c-card);
+      border-radius: 12px;
+      padding: 24px;
+      font-family: 'Noto Serif SC', serif;
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--c-ink);
+      border-left: 3px solid var(--c-primary);
+    }
+
+    .founder-socials {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .social-btn {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      border: 1px solid var(--c-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--c-muted);
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .social-btn:hover {
+      border-color: var(--c-primary);
+      color: var(--c-primary);
+    }
+
+    /* ===== 联系我们 ===== */
+    .contact-section {
+      background: var(--c-primary);
+      padding: 96px 32px;
+      text-align: center;
+    }
+
+    .contact-section .section-title {
+      color: var(--c-white);
+    }
+
+    .contact-section .section-subtitle {
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 48px;
+    }
+
+    .contact-form {
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: left;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--c-primary-disabled);
+      background: var(--c-white);
+      font-size: 16px;
+      font-family: inherit;
+      color: var(--c-ink);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--c-white);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
+    }
+
+    .form-input::placeholder { color: var(--c-muted-light); }
+
+    textarea.form-input { min-height: 120px; resize: vertical; }
+
+    .form-submit {
+      width: 100%;
+      padding: 16px;
+      background: var(--c-dark-surface);
+      color: var(--c-white);
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .form-submit:hover { background: var(--c-dark-elevated); }
+
+    .contact-or {
+      color: rgba(255, 255, 255, 0.7);
+      margin: 24px 0;
+      font-size: 14px;
+    }
+
+    .contact-email {
+      color: var(--c-white);
+      text-decoration: underline;
+      font-size: 16px;
+    }
+
+    .contact-address {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    .ai-embedded {
+      margin-top: 32px;
+      padding: 16px 24px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--c-white);
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .ai-embedded:hover { background: rgba(255, 255, 255, 0.25); }
+
+    /* ===== Footer ===== */
+    .footer {
+      background: var(--c-dark-surface);
+      padding: 64px 32px 32px;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .footer-top {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .footer-logo {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 20px;
+      color: var(--c-canvas);
+    }
+
+    .footer-tagline {
+      font-size: 14px;
+      color: var(--c-dark-muted);
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+      margin-bottom: 40px;
+    }
+
+    .footer-column h4 {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--c-canvas);
+      margin-bottom: 16px;
+    }
+
+    .footer-column a {
+      display: block;
+      font-size: 14px;
+      color: var(--c-dark-muted);
+      text-decoration: none;
+      margin-bottom: 10px;
+      transition: color 0.2s ease;
+    }
+
+    .footer-column a:hover { color: var(--c-canvas); }
+
+    .footer-divider {
+      height: 1px;
+      background: var(--c-dark-elevated);
+      margin-bottom: 24px;
+    }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      color: var(--c-dark-muted);
+    }
+
+    /* ===== AI 助手 ===== */
+    .ai-bubble {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 56px;
+      height: 56px;
+      background: var(--c-primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(204, 120, 92, 0.3);
+      z-index: 1001;
+      animation: breathe 3s ease-in-out infinite;
+      transition: transform 0.2s ease;
+    }
+
+    .ai-bubble:hover { transform: scale(1.1); }
+
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .ai-panel {
+      position: fixed;
+      bottom: 96px;
+      right: 24px;
+      width: 400px;
+      height: 600px;
+      background: var(--c-canvas);
+      border-radius: 16px 16px 0 0;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+      border: 1px solid var(--c-border);
+      display: none;
+      flex-direction: column;
+      z-index: 1000;
+      overflow: hidden;
+    }
+
+    .ai-panel.open {
+      display: flex;
+      animation: panelOpen 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes panelOpen {
+      from { transform: scale(0.8) translateY(20px); opacity: 0; }
+      to { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    .ai-header {
+      height: 64px;
+      background: var(--c-dark-surface);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+    }
+
+    .ai-header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .ai-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--c-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--c-white);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .ai-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--c-canvas);
+      font-size: 14px;
+    }
+
+    .ai-status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--c-success);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .ai-close {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--c-canvas);
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .ai-close:hover { background: rgba(255, 255, 255, 0.1); }
+
+    .ai-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .ai-welcome {
+      background: var(--c-card);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      color: var(--c-ink);
+      line-height: 1.6;
+    }
+
+    .ai-quick {
+      display: flex;
+      gap: 8px;
+      padding: 0 20px 16px;
+      overflow-x: auto;
+    }
+
+    .ai-quick-btn {
+      white-space: nowrap;
+      padding: 8px 16px;
+      background: var(--c-card);
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--c-ink);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .ai-quick-btn:hover {
+      background: var(--c-canvas-soft);
+      border: 1px solid var(--c-border);
+    }
+
+    .ai-input-area {
+      height: 72px;
+      border-top: 1px solid var(--c-border);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 12px;
+    }
+
+    .ai-input {
+      flex: 1;
+      padding: 12px 16px;
+      border: none;
+      background: var(--c-canvas);
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--c-ink);
+    }
+
+    .ai-input:focus { outline: none; }
+
+    .ai-input::placeholder { color: var(--c-muted-light); }
+
+    .ai-send {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--c-primary);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--c-white);
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .ai-send:hover { background: var(--c-primary-deep); }
+
+    /* ===== 响应式 ===== */
+    @media (max-width: 1024px) {
+      .cards-grid { grid-template-columns: repeat(2, 1fr); }
+      .numbers-grid { grid-template-columns: repeat(2, 1fr); }
+      .number-item:nth-child(2)::after { display: none; }
+      .footer-grid { grid-template-columns: repeat(2, 1fr); }
+      .founder-layout { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hero-title { font-size: 32px; }
+      .section-title { font-size: 28px; }
+      .cards-grid { grid-template-columns: 1fr; }
+      .numbers-grid { grid-template-columns: 1fr; }
+      .number-item::after { display: none; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; gap: 8px; }
+      .hero-ctas { flex-direction: column; }
+      .ai-panel { width: 100vw; right: 0; bottom: 0; border-radius: 16px 16px 0 0; }
+      .founder-avatar { font-size: 80px; }
+    }
+
+    /* ===== 滚动动画 ===== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.6s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 导航 -->
+  <nav class="nav">
+    <a href="#" class="nav-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+        <path d="M8 12l3 3 5-5"/>
+      </svg>
+      Metanoia
+    </a>
+    <div class="nav-links">
+      <a href="#business" class="nav-link">业务</a>
+      <a href="#projects" class="nav-link">项目</a>
+      <a href="#insights" class="nav-link">笔记</a>
+      <a href="#founder" class="nav-link">关于</a>
+      <a href="#contact" class="nav-link">联系</a>
+    </div>
+    <a href="#contact" class="nav-cta">联系我们</a>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero" id="hero">
+    <svg class="hero-butterfly" viewBox="0 0 100 100" fill="none" stroke="var(--c-primary)" stroke-width="1">
+      <path d="M50 20c-10-15-30-10-30 5 0 15 20 25 30 30 10-5 30-15 30-30 0-15-20-20-30-5z"/>
+      <path d="M50 55v25"/>
+      <path d="M50 65c-5 5-10 10-15 10"/>
+      <path d="M50 65c5 5 10 10 15 10"/>
+    </svg>
+    <div class="hero-badge">Born From The AI Era</div>
+    <h1 class="hero-title">在黑暗中寻找光明<br>我们是启明科技</h1>
+    <p class="hero-subtitle">一家年轻的 AI 技术公司，用代码和创意为行业注入新生命</p>
+    <div class="hero-ctas">
+      <a href="#business" class="btn-primary">了解我们</a>
+      <a href="#contact" class="btn-secondary">联系我们</a>
+    </div>
+  </section>
+
+  <!-- 业务板块 -->
+  <section class="section" id="business">
+    <h2 class="section-title reveal">我们做什么</h2>
+    <p class="section-subtitle reveal">技术 + 设计 + AI，三位一体的解决方案</p>
+    <div class="cards-grid">
+      <div class="card reveal">
+        <div class="card-icon coral">⌘</div>
+        <h3 class="card-title">全栈技术</h3>
+        <p class="card-desc">从前端到后端，从 API 到 AI，Irra 带领技术团队交付高质量代码</p>
+        <div class="card-tags">
+          <span class="tag">Python</span>
+          <span class="tag">React</span>
+          <span class="tag">Next.js</span>
+          <span class="tag">AI API</span>
+        </div>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon amber">✦</div>
+        <h3 class="card-title">视觉设计</h3>
+        <p class="card-desc">Mery 主导设计部，从品牌视觉到交互体验，让产品既有美感又好用</p>
+        <div class="card-tags">
+          <span class="tag">UI/UX</span>
+          <span class="tag">品牌设计</span>
+          <span class="tag">设计系统</span>
+        </div>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon celadon">◈</div>
+        <h3 class="card-title">智能赋能</h3>
+        <p class="card-desc">将 AI 能力融入业务流程，自动化、智能化、数据驱动决策</p>
+        <div class="card-tags">
+          <span class="tag">LLM</span>
+          <span class="tag">自动化</span>
+          <span class="tag">数据分析</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 项目展示 -->
+  <section class="dark-section" id="projects">
+    <div class="section" style="padding: 0;">
+      <h2 class="section-title reveal">我们的项目</h2>
+      <p class="section-subtitle reveal">从概念到上线，每一个项目都是一次重生</p>
+      <div class="cards-grid" style="margin-top: 48px;">
+        <div class="project-card reveal">
+          <div class="project-visual">🗼</div>
+          <div class="project-info">
+            <h3 class="project-name">SpireGuide</h3>
+            <p class="project-desc">智能导航助手，用 AI 重新定义路径规划</p>
+            <a href="#" class="project-link">查看 GitHub →</a>
+          </div>
+        </div>
+        <div class="project-card reveal">
+          <div class="project-visual">💪</div>
+          <div class="project-info">
+            <h3 class="project-name">HYROS Fit</h3>
+            <p class="project-desc">AI 驱动的健康管理平台</p>
+            <a href="#" class="project-link">查看 GitHub →</a>
+          </div>
+        </div>
+        <div class="project-card reveal">
+          <div class="project-visual">📊</div>
+          <div class="project-info">
+            <h3 class="project-name">JD Review Scraper</h3>
+            <p class="project-desc">自动化京东评论采集与分析工具</p>
+            <a href="#" class="project-link">查看 GitHub →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 运营数据 -->
+  <section class="section" id="numbers">
+    <h2 class="section-title reveal">数据见证成长</h2>
+    <div class="numbers-grid" style="margin-top: 48px;">
+      <div class="number-item reveal">
+        <div class="number-value" data-target="12">0</div>
+        <div class="number-label">交付项目</div>
+      </div>
+      <div class="number-item reveal">
+        <div class="number-value" data-target="5">0</div>
+        <div class="number-label">技术栈覆盖</div>
+      </div>
+      <div class="number-item reveal">
+        <div class="number-value" data-target="100">0</div>
+        <div class="number-label">客户满意度 %</div>
+      </div>
+      <div class="number-item reveal">
+        <div class="number-value accent">∞</div>
+        <div class="number-label">探索可能性</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 笔记/洞察 -->
+  <section class="insights-section" id="insights">
+    <div class="section" style="padding: 0;">
+      <h2 class="section-title reveal">笔记与洞察</h2>
+      <p class="section-subtitle reveal">我们在探索中记录，在记录中成长</p>
+      <div class="cards-grid" style="margin-top: 48px;">
+        <div class="blog-card reveal">
+          <div class="blog-cover">
+            <span class="blog-tag">技术思考</span>
+          </div>
+          <div class="blog-content">
+            <h3 class="blog-title">如何用 AI 重构传统行业工作流</h3>
+            <p class="blog-excerpt">当 LLM 遇到 ERP，一场静默的效率革命正在发生...</p>
+            <span class="blog-date">2026-04-15</span>
+          </div>
+        </div>
+        <div class="blog-card reveal">
+          <div class="blog-cover">
+            <span class="blog-tag">设计随笔</span>
+          </div>
+          <div class="blog-content">
+            <h3 class="blog-title">温暖设计的经济学</h3>
+            <p class="blog-excerpt">为什么 Claude 的奶油白比 OpenAI 的深灰更能留住用户...</p>
+            <span class="blog-date">2026-03-28</span>
+          </div>
+        </div>
+        <div class="blog-card reveal">
+          <div class="blog-cover">
+            <span class="blog-tag">创业观察</span>
+          </div>
+          <div class="blog-content">
+            <h3 class="blog-title">从 0 到 1：启明科技的诞生</h3>
+            <p class="blog-excerpt">JiaWen 如何在 AI 浪潮中找到自己的定位...</p>
+            <span class="blog-date">2026-02-10</span>
+          </div>
+        </div>
+      </div>
+      <div style="text-align: center; margin-top: 32px;">
+        <a href="#" style="color: var(--c-primary); text-decoration: none; font-weight: 500;">阅读更多笔记 →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CEO简历 -->
+  <section class="founder-section" id="founder">
+    <div class="founder-layout">
+      <div class="founder-avatar reveal">J</div>
+      <div class="founder-content">
+        <h2 class="section-title">关于创始人</h2>
+        <div class="founder-name">JiaWen</div>
+        <div class="founder-role">创始人 & CEO</div>
+        <p class="founder-bio reveal">
+          从一名热爱技术的探索者，到带领启明科技不断前行的创始人。
+          JiaWen 相信：技术的意义不在于炫技，而在于解决问题、创造价值。
+          在 AI 浪潮中，她选择做那个在黑暗中寻找光明的人。
+        </p>
+        <div class="founder-quote reveal">
+          Metanoia 在希腊语中意为「蜕变、觉醒」。这也是我们的信念：
+          每一次技术的突破，都是一次重生。
+        </div>
+        <div class="founder-socials reveal">
+          <a href="#" class="social-btn" title="GitHub">GH</a>
+          <a href="#" class="social-btn" title="LinkedIn">LI</a>
+          <a href="#" class="social-btn" title="Email">@</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 联系我们 -->
+  <section class="contact-section" id="contact">
+    <h2 class="section-title">让我们一起创造</h2>
+    <p class="section-subtitle">无论是技术咨询、设计合作，还是仅仅想聊聊 AI — 我们随时在</p>
+    <form class="contact-form reveal" onsubmit="return false;">
+      <div class="form-group">
+        <input type="text" class="form-input" placeholder="你的姓名">
+      </div>
+      <div class="form-group">
+        <input type="email" class="form-input" placeholder="邮箱地址">
+      </div>
+      <div class="form-group">
+        <textarea class="form-input" placeholder="告诉我们你的需求..."></textarea>
+      </div>
+      <button type="submit" class="form-submit">发送消息</button>
+    </form>
+    <div class="contact-or">或直接联系</div>
+    <a href="mailto:hello@metanoia.tech" class="contact-email">hello@metanoia.tech</a>
+    <div class="contact-address">中国</div>
+    <div class="ai-embedded" onclick="toggleAI()">
+      <span>🤖</span>
+      <span>想快速了解我们？问问 Metanoia AI</span>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-top">
+        <span class="footer-logo">Metanoia</span>
+        <span class="footer-tagline">探索 · 蜕变 · 重生</span>
+      </div>
+      <div class="footer-grid">
+        <div class="footer-column">
+          <h4>业务</h4>
+          <a href="#">技术部</a>
+          <a href="#">设计部</a>
+          <a href="#">AI解决方案</a>
+        </div>
+        <div class="footer-column">
+          <h4>项目</h4>
+          <a href="#">SpireGuide</a>
+          <a href="#">HYROS Fit</a>
+          <a href="#">JD Review Scraper</a>
+        </div>
+        <div class="footer-column">
+          <h4>关于</h4>
+          <a href="#">创始人</a>
+          <a href="#">笔记</a>
+          <a href="#">联系我们</a>
+        </div>
+        <div class="footer-column">
+          <h4>链接</h4>
+          <a href="#">GitHub</a>
+          <a href="#">LinkedIn</a>
+          <a href="#">设计系统</a>
+        </div>
+      </div>
+      <div class="footer-divider"></div>
+      <div class="footer-bottom">
+        <span>© 2026 Metanoia 启明科技. All rights reserved.</span>
+        <span>Designed by Mery. Built by Irra.</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- AI 助手 -->
+  <div class="ai-bubble" onclick="toggleAI()">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+  </div>
+
+  <div class="ai-panel" id="aiPanel">
+    <div class="ai-header">
+      <div class="ai-header-left">
+        <div class="ai-avatar">M</div>
+        <div class="ai-status">
+          <div class="ai-status-dot"></div>
+          <span>Metanoia AI 助手</span>
+        </div>
+      </div>
+      <div class="ai-close" onclick="toggleAI()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </div>
+    </div>
+    <div class="ai-messages">
+      <div class="ai-welcome">
+        你好 👋 我是启明科技的 AI 助手。想了解我们的技术能力、查看项目案例，或直接与团队取得联系？随时问我！
+      </div>
+    </div>
+    <div class="ai-quick">
+      <button class="ai-quick-btn">你们提供什么服务？</button>
+      <button class="ai-quick-btn">看看你们的项目</button>
+      <button class="ai-quick-btn">联系创始人</button>
+      <button class="ai-quick-btn">设计合作怎么收费？</button>
+    </div>
+    <div class="ai-input-area">
+      <input type="text" class="ai-input" placeholder="输入你的问题...">
+      <button class="ai-send">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // AI 助手开关
+    function toggleAI() {
+      const panel = document.getElementById('aiPanel');
+      panel.classList.toggle('open');
+    }
+
+    // 点击外部关闭
+    document.addEventListener('click', function(e) {
+      const panel = document.getElementById('aiPanel');
+      const bubble = document.querySelector('.ai-bubble');
+      if (panel.classList.contains('open') && !panel.contains(e.target) && !bubble.contains(e.target)) {
+        panel.classList.remove('open');
+      }
+    });
+
+    // 滚动动画
+    const reveals = document.querySelectorAll('.reveal');
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    reveals.forEach(el => revealObserver.observe(el));
+
+    // 数字计数动画
+    const numberValues = document.querySelectorAll('.number-value[data-target]');
+    const numberObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const target = parseInt(el.dataset.target);
+          let current = 0;
+          const increment = target / 60;
+          const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+              current = target;
+              clearInterval(timer);
+            }
+            el.textContent = Math.floor(current) + (target === 100 ? '%' : '+');
+          }, 33);
+          numberObserver.unobserve(el);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    numberValues.forEach(el => numberObserver.observe(el));
+
+    // 导航滚动效果
+    let lastScroll = 0;
+    const nav = document.querySelector('.nav');
+    window.addEventListener('scroll', () => {
+      const currentScroll = window.pageYOffset;
+      if (currentScroll > 100) {
+        nav.style.background = 'rgba(250, 249, 245, 0.95)';
+      } else {
+        nav.style.background = 'rgba(250, 249, 245, 0.85)';
+      }
+      lastScroll = currentScroll;
+    });
+  </script>
+
+</body>
+</html>

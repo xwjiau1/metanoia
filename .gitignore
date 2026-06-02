@@ -1,0 +1,31 @@
+# OpenClaw 敏感配置
+.openclaw/
+
+# 短期记忆（含敏感信息）
+memory/.dreams/
+downloads/
+
+# 工具脚本（含 GitHub Token）
+skills/metanoia-github-push/scripts/github-push.sh
+skills/metanoia-github-push/references/github-accounts.md
+tech/knowledge/tools/.expo_token
+tech/knowledge/tools/.expo_token_env
+
+# 大文件（APK 超过 50MB）
+*.apk
+tech/deliverables/
+
+# 嵌套仓库（作为子模块管理）
+design/awesome-design-md/
+jd-review-scraper/
+tech/projects/hyros-fit/03-源码/
+tech/projects/jd-review-scraper/
+tech/projects/slay-spire-guide/
+
+# 日志与临时文件
+*.log
+*.tmp
+.DS_Store
+node_modules/
+.env
+.env.local

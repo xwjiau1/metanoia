@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HYROS Fit - 配置上线手册</title>
+<style>
+:root{--bg:#1a1a1a;--surface:#252525;--text:#f0f0f0;--muted:#888;--primary:#E53935;--accent:#00C853;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;line-height:1.7;max-width:720px;margin:0 auto;padding:24px}
+h1{color:var(--primary);font-size:2rem;margin-bottom:8px}
+h2{color:var(--accent);font-size:1.3rem;margin:32px 0 12px;border-bottom:1px solid #333;padding-bottom:6px}
+h3{font-size:1.1rem;color:var(--text);margin:20px 0 8px}
+p{margin-bottom:12px;color:var(--muted)}
+pre{background:var(--surface);padding:14px;border-radius:8px;overflow-x:auto;font-size:.85rem;color:#c5c5c5;border:1px solid #333}
+code{background:var(--surface);padding:2px 6px;border-radius:4px;font-size:.9em}
+ul,ol{margin:8px 0 16px 20px;color:var(--muted)}
+li{margin:4px 0}
+.tip{background:rgba(0,200,83,.1);border-left:3px solid var(--accent);padding:10px 14px;border-radius:4px;margin:12px 0;color:#b0b0b0}
+.warn{background:rgba(229,57,53,.1);border-left:3px solid var(--primary);padding:10px 14px;border-radius:4px;margin:12px 0;color:#b0b0b0}
+.step{display:flex;gap:12px;margin:16px 0;align-items:flex-start}
+.step-num{background:var(--primary);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
+.step-body{flex:1}
+</style>
+</head>
+<body>
+<h1>HYROS Fit</h1>
+<p style="color:var(--muted);font-size:.9rem">配置上线手册 v1.0 | MVP 版本</p>
+
+<h2>一、环境准备</h2>
+<div class="step"><div class="step-num">1</div><div class="step-body"><strong>Node.js ≥ 18</strong><p>从 <a href="https://nodejs.org" style="color:var(--primary)">nodejs.org</a> 下载 LTS 版本。验证：</p><pre>node -v
+npm -v</pre></div></div>
+<div class="step"><div class="step-num">2</div><div class="step-body"><strong>Expo CLI</strong><p>全局安装 Expo CLI：</p><pre>npm install -g expo-cli</pre></div></div>
+<div class="step"><div class="step-num">3</div><div class="step-body"><strong>Android 环境（二选一）</strong>
+<ul>
+<li><strong>真机调试：</strong>开启手机「开发者选项」→「USB 调试」，用数据线连接电脑。推荐，响应最快。</li>
+<li><strong>Android Studio 模拟器：</strong>安装 Android Studio，创建虚拟设备（API 33+，推荐 Pixel 系列）。</li>
+</ul>
+</div></div>
+<div class="step"><div class="step-num">4</div><div class="step-body"><strong>Git（可选）</strong><p>用于版本管理。</p><pre>git --version</pre></div></div>
+
+<h2>二、项目安装步骤</h2>
+<div class="step"><div class="step-num">1</div><div class="step-body"><strong>进入项目目录</strong><pre>cd hyros-fit/src</pre></div></div>
+<div class="step"><div class="step-num">2</div><div class="step-body"><strong>安装依赖</strong><pre>npm install</pre><div class="tip">首次安装可能需要 2-5 分钟，取决于网络环境。</div></div></div>
+<div class="step"><div class="step-num">3</div><div class="step-body"><strong>验证安装</strong><pre>npx expo --version</pre></div></div>
+
+<h2>三、本地调试运行</h2>
+<div class="step"><div class="step-num">1</div><div class="step-body"><strong>启动开发服务器</strong><pre>npx expo start</pre><div class="tip">会自动打开 Metro Bundler 网页控制台。</div></div></div>
+<div class="step"><div class="step-num">2</div><div class="step-body"><strong>连接到设备</strong>
+<ul>
+<li><strong>真机：</strong>手机安装「Expo Go」App（Google Play 下载），扫描 Metro 页面二维码。</li>
+<li><strong>模拟器：</strong>在 Metro 页面点击 "Run on Android device/emulator"。</li>
+</ul>
+</div></div>
+<div class="step"><div class="step-num">3</div><div class="step-body"><strong>热重载</strong><p>修改代码后自动刷新。按 <code>R</code> 强制重载，<code>Ctrl+M</code> 打开开发者菜单。</p></div></div>
+
+<h2>四、打包 APK</h2>
+<h3>方式 A：EAS Build（推荐，云端打包）</h3>
+<div class="step"><div class="step-num">1</div><div class="step-body"><strong>安装 EAS CLI</strong><pre>npm install -g eas-cli</pre></div></div>
+<div class="step"><div class="step-num">2</div><div class="step-body"><strong>登录 Expo 账号</strong><pre>eas login</pre></div></div>
+<div class="step"><div class="step-num">3</div><div class="step-body"><strong>构建 APK</strong><pre>eas build -p android --profile preview</pre><div class="tip">首次构建约 10-15 分钟。完成后会提供下载链接。</div></div></div>
+
+<h3>方式 B：本地打包（需 Android SDK）</h3>
+<pre>npx expo prebuild -p android
+cd android
+./gradlew assembleRelease</pre>
+<div class="warn">本地打包需要配置 Android SDK 和签名密钥，流程较复杂。MVP 阶段推荐使用 EAS Build。</div>
+
+<h2>五、真机安装方法</h2>
+<ol>
+<li>通过 USB 将 APK 传输到手机，点击安装。</li>
+<li>或发送到手机微信/QQ，在聊天中点击安装。</li>
+<li>若提示「未知来源」，前往设置 → 安全 → 允许未知来源应用安装。</li>
+<li>安装完成后，桌面出现「HYROS Fit」图标，点击打开。</li>
+</ol>
+
+<h2>六、常见问题排查</h2>
+<table style="width:100%;border-collapse:collapse;margin-top:8px">
+<tr style="border-bottom:1px solid #333"><td style="padding:10px 0;color:var(--text);font-weight:600;width:35%">问题</td><td style="padding:10px 0;color:var(--text);font-weight:600">解决方案</td></tr>
+<tr style="border-bottom:1px solid #2a2a2a"><td style="padding:10px 0;vertical-align:top">Metro 启动失败</td><td style="padding:10px 0;color:var(--muted)">检查 8081 端口是否被占用：<br><code>npx expo start --port 8082</code></td></tr>
+<tr style="border-bottom:1px solid #2a2a2a"><td style="padding:10px 0;vertical-align:top">手机无法连接</td><td style="padding:10px 0;color:var(--muted)">确保手机和电脑在同一 WiFi。<br>真机用 USB 更稳定。</td></tr>
+<tr style="border-bottom:1px solid #2a2a2a"><td style="padding:10px 0;vertical-align:top">SQLite 报错</td><td style="padding:10px 0;color:var(--muted)">Expo SQLite 在部分模拟器上有兼容问题。<br>建议用真机调试。</td></tr>
+<tr style="border-bottom:1px solid #2a2a2a"><td style="padding:10px 0;vertical-align:top">Expo Go 白屏</td><td style="padding:10px 0;color:var(--muted)">清除 Expo Go 缓存，或重新扫描 QR。</td></tr>
+<tr style="border-bottom:1px solid #2a2a2a"><td style="padding:10px 0;vertical-align:top">EAS Build 排队久</td><td style="padding:10px 0;color:var(--muted)">Expo 免费队列可能有延迟。<br>可购买 Priority Build。</td></tr>
+</table>
+
+<div style="margin-top:40px;padding-top:20px;border-top:1px solid #333;color:#555;font-size:.85rem">
+<p>HYROS Fit v1.0.0 MVP | 离线可用 | SQLite 本地持久化</p>
+<p>React Native (Expo) | 深色模式 | 单手操作优化</p>
+</div>
+</body>
+</html>

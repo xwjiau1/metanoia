@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HYROS Fit - 开发方案文档</title>
+    <style>
+        :root {
+            --primary: #E53935;
+            --bg: #1a1a1a;
+            --card: #252525;
+            --card-hover: #2e2e2e;
+            --text: #FFFFFF;
+            --text-secondary: #B0B0B0;
+            --text-muted: #757575;
+            --accent: #00C853;
+            --warning: #FFB300;
+            --border: #333333;
+            --code-bg: #1e1e1e;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            font-size: 15px;
+        }
+        .container { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 15px;
+            margin-bottom: 32px;
+        }
+        h2 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-top: 40px;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--primary);
+            display: inline-block;
+        }
+        h3 {
+            font-size: 17px;
+            font-weight: 600;
+            margin-top: 24px;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+        h4 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-top: 16px;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+        p { margin-bottom: 12px; color: var(--text-secondary); }
+        ul, ol { margin-left: 20px; margin-bottom: 16px; color: var(--text-secondary); }
+        li { margin-bottom: 6px; }
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+        }
+        .card:hover { background: var(--card-hover); }
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 6px;
+        }
+        .tag-p0 { background: rgba(229,57,53,0.15); color: var(--primary); }
+        .tag-p1 { background: rgba(0,200,83,0.15); color: var(--accent); }
+        .tag-p2 { background: rgba(255,179,0,0.15); color: var(--warning); }
+        .tag-tech { background: rgba(66,133,244,0.15); color: #4285F4; }
+        .tag-risk { background: rgba(229,57,53,0.15); color: var(--primary); }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 14px;
+        }
+        th {
+            background: var(--card);
+            text-align: left;
+            padding: 10px 12px;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border);
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+        code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Roboto Mono', 'SF Mono', monospace;
+            font-size: 13px;
+            color: #ff7b72;
+        }
+        pre {
+            background: var(--code-bg);
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Roboto Mono', 'SF Mono', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            margin: 12px 0;
+            border: 1px solid var(--border);
+        }
+        pre code { background: none; padding: 0; }
+        .highlight { color: var(--primary); font-weight: 600; }
+        .accent { color: var(--accent); font-weight: 600; }
+        .warning { color: var(--warning); font-weight: 600; }
+        .nav {
+            position: sticky;
+            top: 0;
+            background: rgba(26,26,26,0.95);
+            backdrop-filter: blur(10px);
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+            margin-bottom: 24px;
+        }
+        .nav-inner { max-width: 900px; margin: 0 auto; padding: 0 24px; display: flex; gap: 16px; flex-wrap: wrap; }
+        .nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.2s;
+        }
+        .nav a:hover { color: var(--primary); }
+        .toc { background: var(--card); border-radius: 12px; padding: 20px; margin-bottom: 32px; }
+        .toc h3 { margin-top: 0; }
+        .toc ol { margin-left: 0; list-style-position: inside; }
+        .toc li { margin-bottom: 8px; }
+        .toc a { color: var(--text-secondary); text-decoration: none; }
+        .toc a:hover { color: var(--primary); }
+        .section-number {
+            color: var(--primary);
+            font-weight: 700;
+            margin-right: 6px;
+        }
+        .decision-box {
+            border-left: 3px solid var(--primary);
+            padding-left: 16px;
+            margin: 12px 0;
+        }
+        .decision-box .label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+        .schema-table td:first-child { font-family: 'Roboto Mono', monospace; color: var(--text); }
+        .schema-table .pk { color: var(--accent); }
+        .schema-table .fk { color: var(--warning); }
+        .schema-table .idx { color: #9C27B0; }
+        .week-block {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--primary);
+        }
+        .week-block h4 { margin-top: 0; color: var(--text); }
+        .week-block ul { margin-bottom: 0; }
+        .risk-item {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .risk-level {
+            min-width: 60px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 700;
+            text-align: center;
+            height: fit-content;
+        }
+        .risk-high { background: rgba(229,57,53,0.2); color: var(--primary); }
+        .risk-mid { background: rgba(255,179,0,0.2); color: var(--warning); }
+        .risk-low { background: rgba(0,200,83,0.2); color: var(--accent); }
+        .risk-content { flex: 1; }
+        .risk-content h4 { margin-top: 0; color: var(--text); }
+        .api-endpoint {
+            font-family: 'Roboto Mono', monospace;
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .http-method {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-right: 8px;
+        }
+        .method-get { background: rgba(66,133,244,0.15); color: #4285F4; }
+        .method-post { background: rgba(0,200,83,0.15); color: var(--accent); }
+        .method-put { background: rgba(255,179,0,0.15); color: var(--warning); }
+        .method-delete { background: rgba(229,57,53,0.15); color: var(--primary); }
+        .arch-diagram {
+            background: var(--code-bg);
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+        }
+        .effort-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .effort-s { background: rgba(0,200,83,0.15); color: var(--accent); }
+        .effort-m { background: rgba(255,179,0,0.15); color: var(--warning); }
+        .effort-l { background: rgba(229,57,53,0.15); color: var(--primary); }
+        .effort-xl { background: rgba(156,39,176,0.15); color: #9C27B0; }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="#overview">项目概述</a>
+            <a href="#mvp">MVP功能</a>
+            <a href="#tech">技术栈</a>
+            <a href="#arch">架构设计</a>
+            <a href="#schema">数据库</a>
+            <a href="#algo">核心算法</a>
+            <a href="#api">API设计</a>
+            <a href="#schedule">开发排期</a>
+            <a href="#risk">风险应对</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>HYROS Fit 开发方案文档</h1>
+        <p class="subtitle">版本 V1.0 | 2026-05-07 | 技术负责人: 技术部CTO</p>
+
+        <div class="toc">
+            <h3>目录</h3>
+            <ol>
+                <li><a href="#overview">项目概述</a></li>
+                <li><a href="#mvp">MVP功能清单 (P0)</a></li>
+                <li><a href="#tech">技术栈选型</a></li>
+                <li><a href="#arch">项目架构设计</a></li>
+                <li><a href="#schema">数据库Schema</a></li>
+                <li><a href="#algo">核心算法/逻辑</a></li>
+                <li><a href="#api">API接口设计</a></li>
+                <li><a href="#schedule">开发排期 (Phase 1, 6周)</a></li>
+                <li><a href="#risk">风险点与应对方案</a></li>
+            </ol>
+        </div>
+
+        <h2 id="overview"><span class="section-number">1</span> 项目概述</h2>
+
+        <h3>1.1 产品定位</h3>
+        <div class="card">
+            <p><span class="highlight">名称:</span> HYROS Fit</p>
+            <p><span class="highlight">Slogan:</span> 计划即执行，打卡即进步</p>
+            <p><span class="highlight">定位:</span> 面向有结构化训练计划的进阶健身者的计划管理 + 执行工具</p>
+            <p><span class="highlight">核心价值:</span> AI计划导入 + 日历打卡 + 数据看板，三位一体化</p>
+        </div>
+
+        <h3>1.2 目标用户</h3>
+        <table>
+            <tr><th>维度</th><th>主要用户 (结构化训练者)</th><th>次要用户 (计划制定者)</th></tr>
+            <tr><td>年龄</td><td>20-35岁</td><td>25-40岁</td></tr>
+            <tr><td>性别</td><td>男性70% / 女性30%</td><td>均衡</td></tr>
+            <tr><td>经验</td><td>6个月以上，有明确分化计划</td><td>专业教练/博主</td></tr>
+            <tr><td>频率</td><td>每周4-6次</td><td>为客户制定</td></tr>
+            <tr><td>设备</td><td>安卓为主，部分iOS</td><td>多端</td></tr>
+            <tr><td>场景</td><td>健身房实时打卡，训练后看统计</td><td>计划分发</td></tr>
+        </table>
+
+        <h3>1.3 竞品分析</h3>
+        <table>
+            <tr><th>产品</th><th>优势</th><th>劣势</th><th>HYROS差异化</th></tr>
+            <tr><td>Keep</td><td>内容丰富，用户基数大</td><td>缺乏进阶计划管理</td><td>结构化计划 + 进阶追踪</td></tr>
+            <tr><td>训记/Strong</td><td>专业记录功能</td><td>手动录入繁琐，无AI导入</td><td>AI文本导入 + 智能解析</td></tr>
+            <tr><td>备忘录/Excel</td><td>完全自定义</td><td>无法结构化追踪，无数据看板</td><td>结构化 + 自动化 + 可视化</td></tr>
+        </table>
+
+        <h2 id="mvp"><span class="section-number">2</span> MVP功能清单 (P0优先级)</h2>
+
+        <p>Phase 1 必须实现的核心功能，上线即可用:</p>
+
+        <h3>2.1 用户系统</h3>
+        <div class="card">
+            <span class="tag tag-p0">P0</span>
+            <span class="effort-badge effort-m">中等</span>
+            <ul>
+                <li>手机号注册/登录 (验证码)</li>
+                <li>个人资料: 昵称、头像、身高、体重</li>
+                <li>训练目标设置 (增肌/减脂/力量)</li>
+                <li>单位偏好 (kg/cm vs lbs/ft)</li>
+            </ul>
+        </div>
+
+        <h3>2.2 动作库 (MVP 300个)</h3>
+        <div class="card">
+            <span class="tag tag-p0">P0</span>
+            <span class="effort-badge effort-m">中等</span>
+            <ul>
+                <li>动作名称 (中文/英文/别名)</li>
+                <li>分类筛选: 胸部/背部/腿部/肩部/手臂/腹部/有氧/全身</li>
+                <li>器械类型: 杠铃/哑铃/器械/自重/绳索</li>
+                <li>搜索: 支持拼音/中文/英文模糊搜索</li>
+                <li>难度分级: 初级/中级/高级</li>
+            </ul>
+        </div>
+
+        <h3>2.3 手动创建训练计划</h3>
+        <div class="card">
+            <span class="tag tag-p0">P0</span>
+            <span class="effort-badge effort-l">较大</span>
+            <ul>
+                <li>Step1 基础信息: 计划名称、周期(4/8/12周)、分化选择(3/4/5/6)</li>
+                <li>Step2 训练日设置: 选择每周训练日、每天训练重点、时长预估</li>
+                <li>Step3 添加动作: 搜索动作库、设置组数/次数/重量/休息、拖拽排序</li>
+                <li>Step4 预览保存: 周视图预览、生成日历计划</li>
+                <li>超级组标记 (基础版)</li>
+            </ul>
+        </div>
+
+        <h3>2.4 日历视图</h3>
+        <div class="card">
+            <span class="tag tag-p0">P0</span>
+            <span class="effort-badge effort-m">中等</span>
+            <ul>
+                <li>月历显示训练安排 (带训练标记)</li>
+                <li>日期状态: 待执行/已完成/未完成/休息日</li>
+                <li>今日训练卡片 (显示当天计划概览)</li>
+                <li>本周进度条 (本周完成/目标次数)</li>
+                <li>连续打卡天数显示</li>
+                <li>左右滑动切换月份</li>
+            </ul>
+        </div>
+
+        <h3>2.5 当日训练打卡界面 (核心页面)</h3>
+        <div class="card">
+            <span class="tag tag-p0">P0</span>
+            <span class="effort-badge effort-xl">核心</span>
+            <ul>
+                <li>动作列表显示 (目标组数/次数/休息)</li>
+                <li>组打卡复选框 (点击标记完成)</li>
+                <li>重量/次数输入 (数字键盘，快捷+-按钮)</li>
+                <li>组间计时器 (自动启动，可暂停/跳过)</li>
+                <li>超级组显示 (交替完成)</li>
+                <li>上次训练数据回显</li>
+                <li>训练进度统计 (已用时长/当前容量)</li>
+                <li>完成训练按钮</li>
+            </ul>
+        </div>
+
+        <h3>2.6 训练总结</h3>
+        <div class="card">
+            <span class="tag tag-p0">P0</span>
+            <span class="effort-badge effort-m">中等</span>
+            <ul>
+                <li>训练时长统计</li>
+                <li>总容量计算</li>
+                <li>动作完成率 / 组数完成率</li>
+                <li>与上次对比 (重量变化)</li>
+                <li>PR检测展示</li>
+                <li>写训练笔记</li>
+                <li>返回首页</li>
+            </ul>
+        </div>
+
+        <h3>2.7 数据统计看板 (基础版)</h3>
+        <div class="card">
+            <span class="tag tag-p0">P0</span>
+            <span class="effort-badge effort-l">较大</span>
+            <ul>
+                <li>概览卡片: 本周/本月训练次数、连续打卡、总天数</li>
+                <li>容量趋势图 (按日期)</li>
+                <li>部位分布统计</li>
+                <li>训练日历热力图 (GitHub风格)</li>
+            </ul>
+        </div>
+
+        <h3>2.8 离线存储</h3>
+        <div class="card">
+            <span class="tag tag-p0">P0</span>
+            <span class="effort-badge effort-m">中等</span>
+            <ul>
+                <li>SQLite本地数据库</li>
+                <li>所有核心功能离线可用</li>
+                <li>登录后云端同步</li>
+            </ul>
+        </div>
+
+        <h2 id="tech"><span class="section-number">3</span> 技术栈选型</h2>
+
+        <h3>3.1 前端框架: React Native</h3>
+        <div class="decision-box">
+            <div class="label">DECISION</div>
+            <p><strong>选择: React Native (Expo)</strong></p>
+            <p><strong>理由:</strong></p>
+            <ul>
+                <li>目标用户以安卓为主，React Native一套代码覆盖Android + iOS，降低维护成本</li>
+                <li>Expo生态成熟，提供Expo Calendar、Expo Notifications等模块，减少原生开发</li>
+                <li>社区庞大，第三方库丰富 (如react-native-draggable-flatlist用于拖拽排序)</li>
+                <li>热更新支持 (Expo OTA)，便于快速迭代修复</li>
+                <li>团队学习曲线较Flutter平缓，JavaScript/React生态人才充足</li>
+            </ul>
+            <p><strong>备选: Flutter</strong> — 性能更优，UI一致性更好，但Dart生态相对较小，复杂动画实现成本高。若团队有Flutter经验可切换。</p>
+        </div>
+
+        <h3>3.2 状态管理: Zustand + React Query</h3>
+        <div class="decision-box">
+            <div class="label">DECISION</div>
+            <p><strong>选择: Zustand (客户端状态) + React Query (服务端状态)</strong></p>
+            <ul>
+                <li>Zustand: 极简API，无样板代码，适合训练打卡等局部状态</li>
+                <li>React Query: 内置缓存、乐观更新、离线支持，完美契合健身App的数据同步场景</li>
+                <li>组合使用避免Redux的过度工程化</li>
+            </ul>
+        </div>
+
+        <h3>3.3 本地数据库: SQLite + Drizzle ORM</h3>
+        <div class="decision-box">
+            <div class="label">DECISION</div>
+            <p><strong>选择: SQLite (expo-sqlite) + Drizzle ORM</strong></p>
+            <ul>
+                <li>SQLite: 成熟可靠，Expo内置支持，零配置</li>
+                <li>Drizzle ORM: 类型安全，轻量，SQL-like语法直观，支持迁移</li>
+                <li>备选: TypeORM 较重；Prisma 不支持React Native。Drizzle为最优解</li>
+                <li>数据加密: SQLCipher 封装，保护用户训练数据</li>
+            </ul>
+        </div>
+
+        <h3>3.4 后端方案: Supabase (推荐)</h3>
+        <div class="decision-box">
+            <div class="label">DECISION</div>
+            <p><strong>选择: Supabase (BaaS)</strong></p>
+            <table>
+                <tr><th>维度</th><th>Supabase</th><th>Firebase</th><th>自建Node.js</th></tr>
+                <tr><td>成本 (初创)</td><td>免费档够用</td><td>免费档够用</td><td>需服务器成本</td></tr>
+                <tr><td>数据库</td><td>PostgreSQL (关系型，适合结构化健身数据)</td><td>Firestore (文档型)</td><td>PostgreSQL/MySQL</td></tr>
+                <tr><td>实时同步</td><td>原生支持 (WebSocket)</td><td>原生支持</td><td>需自建WebSocket</td></tr>
+                <tr><td>认证</td><td>内置 (手机/邮箱/第三方)</td><td>内置</td><td>需自建</td></tr>
+                <tr><td>存储</td><td>S3兼容对象存储</td><td>Cloud Storage</td><td>需自建</td></tr>
+                <tr><td>边缘函数</td><td>Edge Functions (Deno)</td><td>Cloud Functions</td><td>需自建</td></tr>
+                <tr><td>数据锁定</td><td>可导出，无锁定</td><td>深度绑定</td><td>完全自主</td></tr>
+                <tr><td>AI扩展</td><td>pgvector向量存储 (未来AI功能)</td><td>Vertex AI</td><td>需自建</td></tr>
+            </table>
+            <p><strong>决策理由:</strong></p>
+            <ul>
+                <li>健身数据高度结构化 (计划/训练日/动作/组/记录)，PostgreSQL的关系模型天然适配</li>
+                <li>Supabase提供实时订阅，训练数据多端同步无需自建WebSocket</li>
+                <li>初创阶段零服务器成本，按需付费</li>
+                <li>未来AI功能 (动作推荐/计划生成) 可直接使用pgvector</li>
+            </ul>
+            <p><strong>自建Node.js备选:</strong> 若用户量突破10万或需深度定制AI逻辑，可迁移至自建后端 + Supabase作为数据库层。</p>
+        </div>
+
+        <h3>3.5 AI/NLP方案: 规则引擎 + LLM备用</h3>
+        <div class="decision-box">
+            <div class="label">DECISION</div>
+            <p><strong>选择: 自研规则引擎 (主) + 云端LLM API (备用)</strong></p>
+            <table>
+                <tr><th>方案</th><th>适用阶段</th><th>成本</th><th>准确率</th></tr>
+                <tr><td>规则引擎 (正则 + 分词)</td><td>MVP (文本导入)</td><td>零API成本</td><td>85%+ (结构化文本)</td></tr>
+                <tr><td>云端LLM (GPT-4o-mini / Claude Haiku)</td><td>P1+ (复杂文本/截图)</td><td>~$0.01/次</td><td>95%+</td></tr>
+                <tr><td>端侧OCR (ML Kit)</td><td>P2 (截图识别)</td><td>零成本</td><td>依赖图片质量</td></tr>
+            </table>
+            <p><strong>策略:</strong></p>
+            <ul>
+                <li>Phase 1 (MVP): 纯规则引擎处理文本粘贴导入。健身计划文本格式相对固定，规则引擎足以覆盖大多数场景</li>
+                <li>Phase 2: 接入云端LLM作为高置信度备份。规则引擎失败时自动降级到LLM</li>
+                <li>Phase 3: 引入端侧OCR (Google ML Kit) 处理截图/拍照</li>
+                <li>长期: 基于用户修正数据微调小型模型，提升特定用户群体的识别准确率</li>
+            </ul>
+        </div>
+
+        <h3>3.6 离线同步策略</h3>
+        <div class="decision-box">
+            <div class="label">DECISION</div>
+            <p><strong>策略: 本地优先 (Local-First) 架构</strong></p>
+            <pre>
+┌─────────────────────────────────────────┐
+│              用户操作                     │
+│         (打卡/输入/编辑)                   │
+└──────────────┬──────────────────────────┘
+               │ 1. 立即写入本地SQLite
+               ▼
+┌─────────────────────────────────────────┐
+│           本地SQLite数据库                 │
+│      (主数据源，始终可用)                  │
+└──────────────┬──────────────────────────┘
+               │ 2. 同步队列 (Pending)
+               ▼
+┌─────────────────────────────────────────┐
+│           同步引擎                         │
+│  - 检测网络状态                           │
+│  - 批量同步 (debounce 5s)                 │
+│  - 冲突解决 (Last-Write-Wins + 手动合并)   │
+│  - 离线队列持久化                         │
+└──────────────┬──────────────────────────┘
+               │ 3. 网络可用时同步
+               ▼
+┌─────────────────────────────────────────┐
+│         Supabase (云端)                    │
+│    PostgreSQL + Realtime订阅              │
+└─────────────────────────────────────────┘
+            </pre>
+            <p><strong>关键规则:</strong></p>
+            <ul>
+                <li>所有写操作先写本地，再异步同步云端</li>
+                <li>同步队列持久化到SQLite，App崩溃/杀进程不丢失</li>
+                <li>批量同步间隔: 5秒防抖，减少API调用</li>
+                <li>冲突解决: 同一记录冲突采用时间戳优先 (LWW)，训练数据冲突提示用户手动选择</li>
+                <li>首次登录: 全量拉取云端数据覆盖本地</li>
+                <li>定期全量校验: 每周一次完整数据哈希比对</li>
+            </ul>
+        </div>
+
+        <h3>3.7 技术栈总览</h3>
+        <table>
+            <tr><th>层级</th><th>技术选型</th><th>版本/说明</th></tr>
+            <tr><td>前端框架</td><td>React Native + Expo</td><td>SDK 50+</td></tr>
+            <tr><td>状态管理</td><td>Zustand + React Query (TanStack Query)</td><td>v5+</td></tr>
+            <tr><td>路由</td><td>Expo Router</td><td>v3+</td></tr>
+            <tr><td>UI组件</td><td>React Native Paper + 自定义组件</td><td>v5+</td></tr>
+            <tr><td>本地数据库</td><td>expo-sqlite + Drizzle ORM</td><td>SQLite3</td></tr>
+            <tr><td>后端</td><td>Supabase</td><td>PostgreSQL 15+</td></tr>
+            <tr><td>认证</td><td>Supabase Auth</td><td>手机/邮箱/微信</td></tr>
+            <tr><td>存储</td><td>Supabase Storage</td><td>图片/备份</td></tr>
+            <tr><td>实时同步</td><td>Supabase Realtime</td><td>WebSocket</td></tr>
+            <tr><td>NLP引擎</td><td>自研规则引擎</td><td>正则 + 分词</td></tr>
+            <tr><td>LLM备用</td><td>OpenAI GPT-4o-mini / 国产替代</td><td>API调用</td></tr>
+            <tr><td>图表</td><td>react-native-gifted-charts</td><td>折线/饼图/柱状</td></tr>
+            <tr><td>拖拽排序</td><td>react-native-draggable-flatlist</td><td>动作排序</td></tr>
+            <tr><td>推送</td><td>Expo Notifications</td><td>本地+远程</td></tr>
+            <tr><td>计时器</td><td>自定义 (setInterval + 后台任务)</td><td>组间休息</td></tr>
+            <tr><td>加密</td><td>SQLCipher + expo-secure-store</td><td>本地数据+Token</td></tr>
+        </table>
+
+        <h2 id="arch"><span class="section-number">4</span> 项目架构设计</h2>
+
+        <h3>4.1 模块划分</h3>
+        <div class="arch-diagram">
+┌─────────────────────────────────────────────────────────────────┐
+│                        表现层 (Presentation)                      │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌──────────┐ │
+│  │  首页/日历    │ │  计划管理    │ │  训练打卡    │ │ 数据看板  │ │
+│  │  Calendar   │ │    Plan     │ │   Workout   │ │ Dashboard│ │
+│  └─────────────┘ └─────────────┘ └─────────────┘ └──────────┘ │
+├─────────────────────────────────────────────────────────────────┤
+│                        业务逻辑层 (Business Logic)                │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌──────────┐ │
+│  │  PlanService │ │WorkoutSvc   │ │  StatsSvc   │ │  AISvc   │ │
+│  │  计划CRUD    │ │ 打卡/计时    │ │ 统计计算    │ │ NLP解析  │ │
+│  └─────────────┘ └─────────────┘ └─────────────┘ └──────────┘ │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐               │
+│  │  SyncEngine  │ │  AuthSvc   │ │ NotifySvc   │               │
+│  │  离线同步    │ │ 用户认证    │ │ 推送通知    │               │
+│  └─────────────┘ └─────────────┘ └─────────────┘               │
+├─────────────────────────────────────────────────────────────────┤
+│                        数据层 (Data Layer)                      │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌──────────┐ │
+│  │ LocalRepo   │ │ RemoteRepo  │ │  CacheMgr   │ │ ActionDB │ │
+│  │  SQLite本地  │ │ Supabase云端 │ │ 内存缓存    │ │ 动作库本地│ │
+│  └─────────────┘ └─────────────┘ └─────────────┘ └──────────┘ │
+├─────────────────────────────────────────────────────────────────┤
+│                        基础设施 (Infrastructure)                │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌──────────┐ │
+│  │  NetMonitor │ │  CryptoUtil │ │  TimerMgr   │ │ FileMgr  │ │
+│  │  网络监听    │ │  加密工具   │ │  计时器管理  │ │ 文件管理  │ │
+│  └─────────────┘ └─────────────┘ └─────────────┘ └──────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+        </div>
+
+        <h3>4.2 数据流</h3>
+        <div class="arch-diagram">
+用户操作 → UI组件 → Store (Zustand) → Service层 → Repository
+                                               ↓
+                                       ┌──────┴──────┐
+                                       ▼             ▼
+                                  LocalRepo      RemoteRepo
+                                  (SQLite)      (Supabase)
+                                       │             │
+                                       └──────┬──────┘
+                                              ▼
+                                        SyncEngine
+                                        (自动同步)
+                                              ↓
+                                        触发React Query
+                                        更新 → UI重渲染
+        </div>
+
+        <h3>4.3 关键实体关系</h3>
+        <div class="arch-diagram">
+┌─────────┐       ┌──────────┐       ┌──────────┐
+│  User   │──1:N──│  Plan    │──1:N──│  PlanDay │
+│ 用户    │       │ 计划     │       │ 计划日   │
+└─────────┘       └──────────┘       └─────┬────┘
+                                         │ 1:N
+                                    ┌────┴────┐
+                                    ▼         ▼
+                              ┌─────────┐ ┌─────────┐
+                              │Exercise │ │Superset │
+                              │ 动作    │ │ 超级组  │
+                              └────┬────┘ └─────────┘
+                                   │ 1:N
+                              ┌────┴────┐
+                              ▼         ▼
+                         ┌────────┐ ┌────────┐
+                         │  Set   │ │  Set   │
+                         │ 训练组 │ │ 训练组 │
+                         └────┬───┘ └───┬────┘
+                              │         │
+                              └────┬────┘
+                                   │ N:1
+                              ┌────┴────┐
+                              ▼         ▼
+                         ┌────────┐ ┌────────┐
+                         │Workout │ │Workout │
+                         │Session │ │Record  │
+                         │训练会话│ │ 记录   │
+                         └────────┘ └────────┘
+        </div>
+
+        <h2 id="schema"><span class="section-number">5</span> 数据库Schema</h2>
+
+        <h3>5.1 核心表结构 (SQLite)</h3>
+
+        <h4>users - 用户表</h4>
+        <table class="schema-table">
+            <tr><th>字段</th><th>类型</th><th>约束</th><th>说明</th></tr>
+            <tr><td class="pk">id</td><td>TEXT</td><td>PK</td><td>UUID, 本地生成</td></tr>
+            <tr><td class="pk">supabase_uid</td><td>TEXT</td><td>UNIQUE</td><td>云端用户ID</td></tr>
+            <tr><td>phone</td><td>TEXT</td><td>UNIQUE</td><td>手机号</td></tr>
+            <tr><td>nickname</td><td>TEXT</td><td></td><td>昵称</td></tr>
+            <tr><td>avatar_url</td><td>TEXT</td><td></td><td>头像URL</td></tr>
+            <tr><td>height_cm</td><td>INTEGER</td><td></td><td>身高(cm)</td></tr>
+            <tr><td>weight_kg</td><td>REAL</td><td></td><td>体重(kg)</td></tr>
+            <tr><td>gender</td><td>TEXT</td><td></td><td>male/female/other</td></tr>
+            <tr><td>birth_date</td><td>DATE</td><td></td><td>出生日期</td></tr>
+            <tr><td>goal</td><td>TEXT</td><td></td><td>增肌/减脂/力量</td></tr>
+            <tr><td>unit_system</td><td>TEXT</td><td>DEFAULT 'metric'</td><td>metric/imperial</td></tr>
+            <tr><td>theme</td><td>TEXT</td><td>DEFAULT 'dark'</td><td>dark/light/system</td></tr>
+            <tr><td>created_at</td><td>TIMESTAMP</td><td></td><td>创建时间</td></tr>
+            <tr><td>updated_at</td><td>TIMESTAMP</td><td></td><td>更新时间</td></tr>
+        </table>
+
+        <h4>exercises - 动作库表</h4>
+        <table class="schema-table">
+            <tr><th>字段</th><th>类型</th><th>约束</th><th>说明</th></tr>
+            <tr><td class="pk">id</td><td>TEXT</td><td>PK</td><td>动作编码 (如 BP001)</td></tr>
+            <tr><td>name_cn</td><td>TEXT</td><td>NOT NULL</td><td>中文名</td></tr>
+            <tr><td>name_en</td><td>TEXT</td><td></td><td>英文名</td></tr>
+            <tr><td>aliases</td><td>TEXT</td><td></td><td>别名, JSON数组</td></tr>
+            <tr><td>category</td><td>TEXT</td><td>NOT NULL</td><td>胸部/背部/腿部/肩部/手臂/腹部/有氧/全身</td></tr>
+            <tr><td>sub_category</td><td>TEXT</td><td></td><td>子分类 (如上胸/下胸)</td></tr>
+            <tr><td>equipment</td><td>TEXT</td><td></td><td>杠铃/哑铃/器械/自重/绳索</td></tr>
+            <tr><td>difficulty</td><td>TEXT</td><td></td><td>beginner/intermediate/advanced</td></tr>
+            <tr><td>muscle_primary</td><td>TEXT</td><td></td><td>主练肌群</td></tr>
+            <tr><td>muscle_secondary</td><td>TEXT</td><td></td><td>辅练肌群, JSON数组</td></tr>
+            <tr><td>tips</td><td>TEXT</td><td></td><td>动作要点</td></tr>
+            <tr><td>common_errors</td><td>TEXT</td><td></td><td>常见错误</td></tr>
+            <tr><td>image_url</td><td>TEXT</td><td></td><td>示意图URL</td></tr>
+            <tr><td>default_rest_seconds</td><td>INTEGER</td><td>DEFAULT 60</td><td>默认休息时间</td></tr>
+            <tr><td>is_custom</td><td>BOOLEAN</td><td>DEFAULT FALSE</td><td>用户自定义动作</td></tr>
+            <tr><td class="idx">idx_name_search</td><td></td><td>INDEX</td><td>name_cn, aliases 全文索引</td></tr>
+        </table>
+
+        <h4>plans - 训练计划表</h4>
+        <table class="schema-table">
+            <tr><th>字段</th><th>类型</th><th>约束</th><th>说明</th></tr>
+            <tr><td class="pk">id</td><td>TEXT</td><td>PK</td><td>UUID</td></tr>
+            <tr><td class="fk">user_id</td><td>TEXT</td><td>FK → users.id</td><td>所属用户</td></tr>
+            <tr><td>name</td><td>TEXT</td><td>NOT NULL</td><td>计划名称</td></tr>
+            <tr><td>description</td><td>TEXT</td><td></td><td>描述</td></tr>
+            <tr><td>duration_weeks</td><td>INTEGER</td><td>NOT NULL</td><td>周期(周)</td></tr>
+            <tr><td>split_type</td><td>TEXT</td><td></td><td>3/4/5/6分化</td></tr>
+            <tr><td>status</td><td>TEXT</td><td>DEFAULT 'draft'</td><td>draft/active/paused/completed</td></tr>
+            <tr><td>start_date</td><td>DATE</td><td></td><td>开始日期</td></tr>
+            <tr><td>end_date</td><td>DATE</td><td></td><td>结束日期</td></tr>
+            <tr><td>is_template</td><td>BOOLEAN</td><td>DEFAULT FALSE</td><td>是否为模板</td></tr>
+            <tr><td>template_category</td><td>TEXT</td><td></td><td>增肌/减脂/力量/特色</td></tr>
+            <tr><td>created_at</td><td>TIMESTAMP</td><td></td><td></td></tr>
+            <tr><td>updated_at</td><td>TIMESTAMP</td><td></td><td></td></tr>
+        </table>
+
+        <h4>plan_days - 计划日表</h4>
+        <table class="schema-table">
+            <tr><th>字段</th><th>类型</th><th>约束</th><th>说明</th></tr>
+            <tr><td class="pk">id</td><td>TEXT</td><td>PK</td><td>UUID</td></tr>
+            <tr><td class="fk">plan_id</td><td>TEXT</td><td>FK → plans.id</td><td>所属计划</td></tr>
+            <tr><td>day_of_week</td><td>INTEGER</td><td>NOT NULL</td><td>1-7 (周一到周日)</td></tr>
+            <tr><td>week_number</td><td>INTEGER</td><td>DEFAULT 1</td><td>第几周</td></tr>
+            <tr><td>focus</td><td>TEXT</td><td></td><td>训练重点 (胸+三头)</td></tr>
+            <tr><td>estimated_duration_min</td><td>INTEGER</td><td></td><td>预计时长</td></tr>
+            <tr><td>carb_day</td><td>TEXT</td><td></td><td>high/medium/low</td></tr>
+            <tr><td>sort_order</td><td>INTEGER</td><td></td><td>显示顺序</td></tr>
+            <tr><td>is_rest_day</td><td>BOOLEAN</td><td>DEFAULT FALSE</td><td>是否休息日</td></tr>
+        </table>
+
+        <h4>plan_exercises - 计划动作表</h4>
+        <table class="schema-table">
+            <tr><th>字段</th><th>类型</th><th>约束</th><th>说明</th></tr>
+            <tr><td class="pk">id</td><td>TEXT</td><td>PK</td><td>UUID</td></tr>
+            <tr><td class="fk">plan_day_id</td><td>TEXT</td><td>FK → plan_days.id</td><td>所属计划日</td></tr>
+            <tr><td class="fk">exercise_id</td><td>TEXT</td><td>FK → exercises.id</td><td>动作</td></tr>
+            <tr><td>sets</td><td>INTEGER</td><td>NOT NULL</td><td>组数</td></tr>
+            <tr><td>reps_min</td><td>INTEGER</td><td></td><td>次数下限</td></tr>
+            <tr><td>reps_max</td><td>INTEGER</td><td></td><td>次数上限</td></tr>
+            <tr><td>target_weight_kg</td><td>REAL</td><td></td><td>目标重量</td></tr>
+            <tr><td>rest_seconds</td><td>INTEGER</td><td></td><td>休息秒数</td></tr>
+            <tr><td>sort_order</td><td>INTEGER</td><td></td><td>排序</td></tr>
+            <tr><td>notes</td><td>TEXT</td><td></td><td>备注</td></tr>
+            <tr><td class="fk">superset_group_id</td><td>TEXT</td><td></td><td>超级组标识 (同ID为一组)</td></tr>
+            <tr><td>is_warmup</td><td>BOOLEAN</td><td>DEFAULT FALSE</td><td>是否热身</td></tr>
+        </table>
+
+        <h4>workout_sessions - 训练会话表</h4>
+        <table class="schema-table">
+            <tr><th>字段</th><th>类型</th><th>约束</th><th>说明</th></tr>
+            <tr><td class="pk">id</td><td>TEXT</td><td>PK</td><td>UUID</td></tr>
+            <tr><td class="fk">user_id</td><td>TEXT</td><td>FK → users.id</td><td>用户</td></tr>
+            <tr><td class="fk">plan_id</td><td>TEXT</td><td>FK → plans.id</td><td>所属计划</td></tr>
+            <tr><td class="fk">plan_day_id</td><td>TEXT</td><td>FK → plan_days.id</td><td>计划日</td></tr>
+            <tr><td>scheduled_date</td><td>DATE</td><td></td><td>计划日期</td></tr>
+            <tr><td>actual_date</td><td>DATE</td><td></td><td>实际执行日期</td></tr>
+            <tr><td>status</td><td>TEXT</td><td>DEFAULT 'scheduled'</td><td>scheduled/completed/skipped/rest_day</td></tr>
+            <tr><td>started_at</td><td>TIMESTAMP</td><td></td><td>开始时间</td></tr>
+            <tr><td>completed_at</td><td>TIMESTAMP</td><td></td><td>完成时间</td></tr>
+            <tr><td>total_duration_seconds</td><td>INTEGER</td><td></td><td>总时长(秒)</td></tr>
+            <tr><td>total_volume_kg</td><td>REAL</td><td></td><td>总容量(kg)</td></tr>
+            <tr><td>exercises_completed</td><td>INTEGER</td><td></td><td>完成动作数</td></tr>
+            <tr><td>exercises_total</td><td>INTEGER</td><td></td><td>总动作数</td></tr>
+            <tr><td>sets_completed</td><td>INTEGER</td><td></td><td>完成组数</td></tr>
+            <tr><td>sets_total</td><td>INTEGER</td><td></td><td>总组数</td></tr>
+            <tr><td>rpe_avg</td><td>INTEGER</td><td></td><td>平均RPE</td></tr>
+            <tr><td>notes</td><td>TEXT</td><td></td><td>训练笔记</td></tr>
+            <tr><td>is_backfill</td><td>BOOLEAN</td><td>DEFAULT FALSE</td><td>是否补签</td></tr>
+            <tr><td>skip_reason</td><td>TEXT</td><td></td><td>跳过原因</td></tr>
+        </table>
+
+        <h4>workout_sets - 训练组记录表</h4>
+        <table class="schema-table">
+            <tr><th>字段</th><th>类型</th><th>约束</th><th>说明</th></tr>
+            <tr><td class="pk">id</td><td>TEXT</td><td>PK</td><td>UUID</td></tr>
+            <tr><td class="fk">session_id</td><td>TEXT</td><td>FK → workout_sessions.id</td><td>所属会话</td></tr>
+            <tr><td class="fk">plan_exercise_id</td><td>TEXT</td><td>FK → plan_exercises.id</td><td>计划动作</td></tr>
+            <tr><td class="fk">exercise_id</td><td>TEXT</td><td>FK → exercises.id</td><td>实际动作 (替换时不同)</td></tr>
+            <tr><td>set_number</td><td>INTEGER</td><td>NOT NULL</td><td>第几组</td></tr>
+            <tr><td>weight_kg</td><td>REAL</td><td></td><td>重量</td></tr>
+            <tr><td>reps</td><td>INTEGER</td><td></td><td>次数</td></tr>
+            <tr><td>is_completed</td><td>BOOLEAN</td><td>DEFAULT FALSE</td><td>是否完成</td></tr>
+            <tr><td>completed_at</td><td>TIMESTAMP</td><td></td><td>完成时间</td></tr>
+            <tr><td>rest_taken_seconds</td><td>INTEGER</td><td></td><td>实际休息秒数</td></tr>
+            <tr><td>rpe</td><td>INTEGER</td><td></td><td>RPE 1-10</td></tr>
+            <tr><td>is_pr</td><td>BOOLEAN</td><td>DEFAULT FALSE</td><td>是否PR</td></tr>
+            <tr><td>notes</td><td>TEXT</td><td></td><td>单组笔记</td></tr>
+            <tr><td>is_skipped</td><td>BOOLEAN</td><td>DEFAULT FALSE</td><td>是否跳过</td></tr>
+        </table>
+
+        <h4>body_records - 身体数据表</h4>
+        <table class="schema-table">
+            <tr><th>字段</th><th>类型</th><th>约束</th><th>说明</th></tr>
+            <tr><td class="pk">id</td><td>TEXT</td><td>PK</td><td>UUID</td></tr>
+            <tr><td class="fk">user_id</td><td>TEXT</td><td>FK → users.id</td><td>用户</td></tr>
+            <tr><td>record_date</td><td>DATE</td><td>NOT NULL</td><td>记录日期</td></tr>
+            <tr><td>weight_kg</td><td>REAL</td><td></td><td>体重</td></tr>
+            <tr><td>body_fat_pct</td><td>REAL</td><td></td><td>体脂率</td></tr>
+            <tr><td>chest_cm</td><td>REAL</td><td></td><td>胸围</td></tr>
+            <tr><td>waist_cm</td><td>REAL</td><td></td><td>腰围</td></tr>
+            <tr><td>hip_cm</td><td>REAL</td><td></td><td>臀围</td></tr>
+            <tr><td>arm_cm</td><td>REAL</td><td></td><td>臂围</td></tr>
+            <tr><td>thigh_cm</td><td>REAL</td><td></td><td>腿围</td></tr>
+            <tr><td>photo_front</td><td>TEXT</td><td></td><td>正面照URL</td></tr>
+            <tr><td>photo_side</td><td>TEXT</td><td></td><td>侧面照URL</td></tr>
+            <tr><td>photo_back</td><td>TEXT</td><td></td><td>背面照URL</td></tr>
+            <tr><td>notes</td><td>TEXT</td><td></td><td>备注</td></tr>
+        </table>
+
+        <h4>personal_records - PR记录表</h4>
+        <table class="schema-table">
+            <tr><th>字段</th><th>类型</th><th>约束</th><th>说明</th></tr>
+            <tr><td class="pk">id</td><td>TEXT</td><td>PK</td><td>UUID</td></tr>
+            <tr><td class="fk">user_id</td><td>TEXT</td><td>FK → users.id</td><td>用户</td></tr>
+            <tr><td class="fk">exercise_id</td><td>TEXT</td><td>FK → exercises.id</td><td>动作</td></tr>
+            <tr><td>record_type</td><td>TEXT</td><td>NOT NULL</td><td>weight/reps/volume/1rm</td></tr>
+            <tr><td>weight_kg</td><td>REAL</td><td></td><td>重量</td></tr>
+            <tr><td>reps</td><td>INTEGER</td><td></td><td>次数</td></tr>
+            <tr><td>volume_kg</td><td>REAL</td><td></td><td>容量 (weight * reps)</td></tr>
+            <tr><td>estimated_1rm</td><td>REAL</td><td></td><td>估算1RM</td></tr>
+            <tr><td class="fk">workout_set_id</td><td>TEXT</td><td>FK → workout_sets.id</td><td>来源组</td></tr>
+            <tr><td>achieved_at</td><td>TIMESTAMP</td><td></td><td>达成时间</td></tr>
+            <tr><td>previous_record_id</td><td>TEXT</td><td>FK → self</td><td>上一个PR (用于对比)</td></tr>
+        </table>
+
+        <h3>5.2 索引策略</h3>
+        <pre>
+-- 高频查询索引
+CREATE INDEX idx_sessions_user_date ON workout_sessions(user_id, scheduled_date);
+CREATE INDEX idx_sets_session ON workout_sets(session_id);
+CREATE INDEX idx_plan_exercises_day ON plan_exercises(plan_day_id);
+CREATE INDEX idx_pr_user_exercise ON personal_records(user_id, exercise_id);
+CREATE INDEX idx_body_user_date ON body_records(user_id, record_date);
+CREATE INDEX idx_exercises_category ON exercises(category);
+CREATE INDEX idx_exercises_search ON exercises(name_cn, name_en, aliases); -- 全文搜索
+
+-- 同步相关
+CREATE INDEX idx_sync_pending ON workout_sessions(user_id, updated_at) WHERE sync_status = 'pending';
+        </pre>
+
+        <h2 id="algo"><span class="section-number">6</span> 核心算法/逻辑</h2>
+
+        <h3>6.1 NLP解析规则 (文本导入)</h3>
+        <p>输入示例: <code>平板杠铃卧推 4组x8-10次 休息90s</code></p>
+
+        <h4>解析流水线</h4>
+        <pre>
+输入文本
+  │
+  ▼
+┌─────────────────────────────────────────┐
+│ Step 1: 预处理                           │
+│  - 统一全角/半角                          │
+│  - 去除多余空格                           │
+│  - 识别日期行 ("周一" / "Day 1")         │
+│  - 识别碳循环标记 ("高碳"/"中碳"/"低碳")   │
+└──────────────┬──────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────┐
+│ Step 2: 行分类                           │
+│  - 日期行 → 训练日分组                     │
+│  - 空行/分隔符 → 跳过                      │
+│  - 动作行 → 进入解析                       │
+└──────────────┬──────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────┐
+│ Step 3: 动作行解析 (核心)                  │
+│  正则模式匹配:                            │
+│                                         │
+│  动作名: ^(.+?)(?=\s+\d+组|\s*x\d)       │
+│    → 提取动作名称文本                      │
+│                                         │
+│  组数: (\d+)\s*组                         │
+│    → 匹配 "4组" / "4 组" / "4组x"        │
+│                                         │
+│  次数: (\d+)(?:\s*-\s*(\d+))?\s*次       │
+│    → 匹配 "8-10次" / "10次"              │
+│    → reps_min=8, reps_max=10            │
+│    → 无范围时: reps_min=reps_max         │
+│                                         │
+│  休息: 休息\s*(\d+)\s*[s秒]              │
+│    → 匹配 "休息90s" / "休息 90秒"         │
+│    → 未匹配时按默认值                      │
+│                                         │
+│  重量: (\d+(?:\.\d+)?)\s*(?:kg|公斤)     │
+│    → 可选，首次可不填                      │
+│                                         │
+│  RPE: RPE\s*(\d+)                        │
+│    → 可选                                 │
+│                                         │
+│  备注: (.+)$                             │
+│    → 行尾剩余文本作为备注                   │
+└──────────────┬──────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────┐
+│ Step 4: 动作名匹配                        │
+│  - 精确匹配 → 直接命中                     │
+│  - 模糊匹配 (编辑距离/Levenshtein)          │
+│    → 阈值: 置信度 > 80% 自动匹配            │
+│    → 阈值: 60%-80% 推荐候选让用户确认        │
+│    → < 60% 标记为"未识别"                  │
+│  - 拼音匹配 (支持拼音首字母)                │
+└──────────────┬──────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────┐
+│ Step 5: 默认值填充                        │
+│  - 组数缺失 → 默认3组                      │
+│  - 次数缺失 → 默认10次                     │
+│  - 休息缺失 →                              │
+│      力量动作 → 60s                        │
+│      复合动作 → 90s                        │
+│      大项(深蹲/硬拉/卧推) → 120s           │
+│  - 日期缺失 → 标记"未分配"                 │
+└──────────────┬──────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────┐
+│ Step 6: 结果输出                          │
+│  - 结构化JSON                             │
+│  - 未识别项高亮                            │
+│  - 用户可编辑修正                          │
+└─────────────────────────────────────────┘
+        </pre>
+
+        <h4>核心正则表达式</h4>
+        <pre>
+// 日期识别
+const dayPattern = /^(周一|周二|周三|周四|周五|周六|周日|星期[一二三四五六日]|Day\s*\d+)/i;
+
+// 碳循环
+const carbPattern = /^(高碳|中碳|低碳)/;
+
+// 动作行主解析
+const linePattern = new RegExp(
+  '^' +
+  '(.*?)' +                          // 动作名 (非贪婪)
+  '(?:\s+(\d+)\s*组)?' +            // 组数
+  '(?:\s*x\s*(\d+)(?:\s*-\s*(\d+))?\s*次)?' +  // 次数 (范围)
+  '(?:\s*(\d+(?:\.\d+)?)\s*(?:kg|公斤))?' +   // 重量
+  '(?:\s*休息\s*(\d+)\s*[s秒])?' +   // 休息
+  '(?:\s*RPE\s*(\d+))?' +            // RPE
+  '(.*)?' +                          // 备注
+  '$'
+);
+
+// 动作名模糊匹配
+function fuzzyMatchExercise(input: string, exerciseList: Exercise[]): MatchResult {
+  // 1. 精确匹配
+  const exact = exerciseList.find(e => 
+    e.name_cn === input || 
+    e.name_en === input ||
+    e.aliases?.includes(input)
+  );
+  if (exact) return { exercise: exact, confidence: 1.0 };
+  
+  // 2. 包含匹配
+  const contains = exerciseList.find(e => 
+    e.name_cn.includes(input) || input.includes(e.name_cn)
+  );
+  if (contains) return { exercise: contains, confidence: 0.9 };
+  
+  // 3. Levenshtein 编辑距离
+  const candidates = exerciseList.map(e => ({
+    exercise: e,
+    distance: levenshtein(input, e.name_cn),
+    maxLen: Math.max(input.length, e.name_cn.length)
+  }));
+  
+  const best = candidates
+    .map(c => ({ ...c, confidence: 1 - c.distance / c.maxLen }))
+    .sort((a, b) => b.confidence - a.confidence)[0];
+  
+  return best.confidence > 0.6 ? best : null;
+}
+        </pre>
+
+        <h4>默认值映射表</h4>
+        <table>
+            <tr><th>缺失字段</th><th>默认值</th><th>判定条件</th></tr>
+            <tr><td>组数 (sets)</td><td>3</td><td>始终</td></tr>
+            <tr><td>次数 (reps)</td><td>10</td><td>始终</td></tr>
+            <tr><td>休息 (rest)</td><td>60s</td><td>单关节/孤立动作</td></tr>
+            <tr><td>休息 (rest)</td><td>90s</td><td>复合动作 (卧推/划船)</td></tr>
+            <tr><td>休息 (rest)</td><td>120s</td><td>大项 (深蹲/硬拉/推举)</td></tr>
+            <tr><td>休息 (rest)</td><td>30s</td><td>腹部/有氧</td></tr>
+        </table>
+
+        <h3>6.2 容量计算逻辑</h3>
+        <pre>
+// 单次训练总容量
+function calculateSessionVolume(sets: WorkoutSet[]): number {
+  return sets.reduce((total, set) => {
+    if (set.is_completed && !set.is_skipped) {
+      const volume = (set.weight_kg || 0) * (set.reps || 0);
+      return total + volume;
+    }
+    return total;
+  }, 0);
+}
+
+// 动作级容量
+function calculateExerciseVolume(sets: WorkoutSet[]): number {
+  return calculateSessionVolume(sets); // 相同逻辑
+}
+
+// 周期容量趋势 (用于数据看板)
+function calculateWeeklyVolume(
+  sessions: WorkoutSession[],
+  startDate: Date,
+  endDate: Date
+): { week: string; volume: number }[] {
+  const weekly = groupByWeek(sessions, startDate, endDate);
+  return weekly.map(week => ({
+    week: week.label,
+    volume: week.sessions.reduce(
+      (sum, s) => sum + (s.total_volume_kg || 0), 0
+    )
+  }));
+}
+
+// 部位容量分布
+function calculateBodyPartDistribution(
+  sessions: WorkoutSession[],
+  exercises: Exercise[]
+): { category: string; volume: number; pct: number }[] {
+  const byCategory: Record<string, number> = {};
+  let total = 0;
+  
+  sessions.forEach(session => {
+    session.sets.forEach(set => {
+      const exercise = exercises.find(e => e.id === set.exercise_id);
+      const category = exercise?.category || '未知';
+      const volume = (set.weight_kg || 0) * (set.reps || 0);
+      byCategory[category] = (byCategory[category] || 0) + volume;
+      total += volume;
+    });
+  });
+  
+  return Object.entries(byCategory)
+    .map(([category, volume]) => ({
+      category,
+      volume,
+      pct: total > 0 ? Math.round((volume / total) * 100) : 0
+    }))
+    .sort((a, b) => b.volume - a.volume);
+}
+        </pre>
+
+        <h3>6.3 连续打卡检测</h3>
+        <pre>
+// 连续打卡天数计算 (支持补签)
+function calculateStreak(
+  sessions: WorkoutSession[],
+  today: Date = new Date()
+): { currentStreak: number; longestStreak: number } {
+  // 1. 获取所有有训练或补签的日期 (去重，按天)
+  const activeDates = new Set(
+    sessions
+      .filter(s => s.status === 'completed' || s.is_backfill)
+      .map(s => formatDate(s.actual_date || s.scheduled_date))
+  );
+  
+  // 2. 获取所有休息日的日期
+  const restDates = new Set(
+    sessions
+      .filter(s => s.status === 'rest_day')
+      .map(s => formatDate(s.scheduled_date))
+  );
+  
+  // 3. 当前连续打卡
+  let currentStreak = 0;
+  let checkDate = new Date(today);
+  
+  while (true) {
+    const dateStr = formatDate(checkDate);
+    
+    if (activeDates.has(dateStr)) {
+      currentStreak++;
+      checkDate = addDays(checkDate, -1);
+    } else if (isWeekend(checkDate) && restDates.has(dateStr)) {
+      // 周末休息日不中断连续打卡 (可选策略)
+      checkDate = addDays(checkDate, -1);
+    } else if (isFuture(checkDate, today)) {
+      // 未来日期跳过
+      checkDate = addDays(checkDate, -1);
+    } else {
+      break;
+    }
+  }
+  
+  // 4. 历史最长连续
+  const sortedDates = Array.from(activeDates).sort();
+  let longestStreak = 0;
+  let tempStreak = 1;
+  
+  for (let i = 1; i < sortedDates.length; i++) {
+    const prev = parseDate(sortedDates[i - 1]);
+    const curr = parseDate(sortedDates[i]);
+    const diffDays = daysBetween(prev, curr);
+    
+    if (diffDays === 1) {
+      tempStreak++;
+    } else if (diffDays === 2 && isWeekend(curr)) {
+      // 周末休息日不中断
+      tempStreak++;
+    } else {
+      longestStreak = Math.max(longestStreak, tempStreak);
+      tempStreak = 1;
+    }
+  }
+  longestStreak = Math.max(longestStreak, tempStreak);
+  
+  return { currentStreak, longestStreak };
+}
+        </pre>
+
+        <h3>6.4 PR检测逻辑</h3>
+        <pre>
+// PR类型定义
+type PRType = 'weight' | 'reps' | 'volume' | 'estimated_1rm';
+
+// 1RM估算 (Epley公式)
+function estimate1RM(weightKg: number, reps: number): number {
+  if (reps === 1) return weightKg;
+  return weightKg * (1 + reps / 30);
+}
+
+// PR检测主函数
+function detectPersonalRecords(
+  newSet: WorkoutSet,
+  exerciseId: string,
+  userId: string,
+  historicalPRs: PersonalRecord[]
+): { isPR: boolean; prType: PRType; previous?: PersonalRecord } {
+  
+  const weight = newSet.weight_kg || 0;
+  const reps = newSet.reps || 0;
+  const volume = weight * reps;
+  const estimated1RM = estimate1RM(weight, reps);
+  
+  // 获取该动作的历史PR
+  const exercisePRs = historicalPRs.filter(pr => pr.exercise_id === exerciseId);
+  
+  const checks: { type: PRType; value: number }[] = [
+    { type: 'weight', value: weight },
+    { type: 'reps', value: reps },
+    { type: 'volume', value: volume },
+    { type: 'estimated_1rm', value: estimated1RM }
+  ];
+  
+  for (const check of checks) {
+    const typePRs = exercisePRs.filter(pr => pr.record_type === check.type);
+    const bestPR = typePRs.length > 0 
+      ? typePRs.reduce((max, pr) => {
+          const val = pr[check.type === 'weight' ? 'weight_kg' : 
+                       check.type === 'reps' ? 'reps' : 
+                       check.type === 'volume' ? 'volume_kg' : 'estimated_1rm'] || 0;
+          return val > (max ? max.weight_kg || 0 : 0) ? pr : max;
+        }, null as PersonalRecord | null)
+      : null;
+    
+    const bestValue = bestPR 
+      ? (check.type === 'weight' ? bestPR.weight_kg :
+         check.type === 'reps' ? bestPR.reps :
+         check.type === 'volume' ? bestPR.volume_kg :
+         bestPR.estimated_1rm) || 0
+      : 0;
+    
+    if (check.value > bestValue) {
+      return { isPR: true, prType: check.type, previous: bestPR || undefined };
+    }
+  }
+  
+  return { isPR: false, prType: 'weight' };
+}
+
+// 简化版PR检测 (训练中使用，只检测重量和次数)
+function quickPRCheck(
+  newSet: { weight_kg: number; reps: number },
+  exerciseHistory: { weight_kg: number; reps: number }[]
+): { isPR: boolean; prType?: string; improvement?: string } {
+  const maxWeight = Math.max(...exerciseHistory.map(h => h.weight_kg), 0);
+  const maxRepsAtWeight = exerciseHistory
+    .filter(h => h.weight_kg === newSet.weight_kg)
+    .map(h => h.reps);
+  const bestRepsAtWeight = Math.max(...maxRepsAtWeight, 0);
+  
+  if (newSet.weight_kg > maxWeight) {
+    return { 
+      isPR: true, 
+      prType: '重量PR', 
+      improvement: `+${(newSet.weight_kg - maxWeight).toFixed(1)}kg` 
+    };
+  }
+  
+  if (newSet.weight_kg === maxWeight && newSet.reps > bestRepsAtWeight) {
+    return { 
+      isPR: true, 
+      prType: '次数PR', 
+      improvement: `+${newSet.reps - bestRepsAtWeight}次` 
+    };
+  }
+  
+  return { isPR: false };
+}
+        </pre>
+
+        <h2 id="api"><span class="section-number">7</span> API接口设计</h2>
+
+        <h3>7.1 RESTful API规范</h3>
+        <p>Base URL: <code>https://api.hyros.fit/v1</code> | 认证: Bearer Token (JWT)</p>
+
+        <h4>用户认证</h4>
+        <table>
+            <tr><th>端点</th><th>方法</th><th>描述</th><th>请求体</th><th>响应</th></tr>
+            <tr><td><code>/auth/register</code></td><td><span class="http-method method-post">POST</span></td><td>手机号注册</td><td><code>{ phone, code, nickname }</code></td><td><code>{ token, user }</code></td></tr>
+            <tr><td><code>/auth/login</code></td><td><span class="http-method method-post">POST</span></td><td>手机号登录</td><td><code>{ phone, code }</code></td><td><code>{ token, user }</code></td></tr>
+            <tr><td><code>/auth/refresh</code></td><td><span class="http-method method-post">POST</span></td><td>刷新Token</td><td><code>{ refresh_token }</code></td><td><code>{ token }</code></td></tr>
+            <tr><td><code>/auth/logout</code></td><td><span class="http-method method-post">POST</span></td><td>登出</td><td>-</td><td><code>{ success }</code></td></tr>
+            <tr><td><code>/auth/me</code></td><td><span class="http-method method-get">GET</span></td><td>获取当前用户</td><td>-</td><td><code>{ user }</code></td></tr>
+        </table>
+
+        <h4>用户资料</h4>
+        <table>
+            <tr><th>端点</th><th>方法</th><th>描述</th><th>请求体</th><th>响应</th></tr>
+            <tr><td><code>/users/me</code></td><td><span class="http-method method-get">GET</span></td><td>获取资料</td><td>-</td><td><code>{ user }</code></td></tr>
+            <tr><td><code>/users/me</code></td><td><span class="http-method method-put">PUT</span></td><td>更新资料</td><td><code>{ nickname, height, weight, ... }</code></td><td><code>{ user }</code></td></tr>
+            <tr><td><code>/users/me/avatar</code></td><td><span class="http-method method-post">POST</span></td><td>上传头像</td><td>multipart</td><td><code>{ avatar_url }</code></td></tr>
+            <tr><td><code>/users/me/settings</code></td><td><span class="http-method method-put">PUT</span></td><td>更新设置</td><td><code>{ unit_system, theme, ... }</code></td><td><code>{ settings }</code></td></tr>
+        </table>
+
+        <h4>动作库</h4>
+        <table>
+            <tr><th>端点</th><th>方法</th><th>描述</th><th>请求体</th><th>响应</th></tr>
+            <tr><td><code>/exercises</code></td><td><span class="http-method method-get">GET</span></td><td>动作列表</td><td><code>?category=&search=&page=</code></td><td><code>{ items, total, page }</code></td></tr>
+            <tr><td><code>/exercises/:id</code></td><td><span class="http-method method-get">GET</span></td><td>动作详情</td><td>-</td><td><code>{ exercise }</code></td></tr>
+            <tr><td><code>/exercises</code></td><td><span class="http-method method-post">POST</span></td><td>创建自定义动作</td><td><code>{ name_cn, category, equipment, ... }</code></td><td><code>{ exercise }</code></td></tr>
+            <tr><td><code>/exercises/search</code></td><td><span class="http-method method-get">GET</span></td><td>搜索动作</td><td><code>?q= (支持拼音)</code></td><td><code>{ matches }</code></td></tr>
+        </table>
+
+        <h4>训练计划</h4>
+        <table>
+            <tr><th>端点</th><th>方法</th><th>描述</th><th>请求体</th><th>响应</th></tr>
+            <tr><td><code>/plans</code></td><td><span class="http-method method-get">GET</span></td><td>计划列表</td><td><code>?status=&page=</code></td><td><code>{ items, total }</code></td></tr>
+            <tr><td><code>/plans</code></td><td><span class="http-method method-post">POST</span></td><td>创建计划</td><td><code>{ name, duration_weeks, split_type, days[] }</code></td><td><code>{ plan }</code></td></tr>
+            <tr><td><code>/plans/:id</code></td><td><span class="http-method method-get">GET</span></td><td>计划详情 (含日程)</td><td>-</td><td><code>{ plan, days[], exercises[] }</code></td></tr>
+            <tr><td><code>/plans/:id</code></td><td><span class="http-method method-put">PUT</span></td><td>更新计划</td><td><code>{ name, status, ... }</code></td><td><code>{ plan }</code></td></tr>
+            <tr><td><code>/plans/:id</code></td><td><span class="http-method method-delete">DELETE</span></td><td>删除计划</td><td>-</td><td><code>{ success }</code></td></tr>
+            <tr><td><code>/plans/:id/activate</code></td><td><span class="http-method method-post">POST</span></td><td>激活计划</td><td><code>{ start_date }</code></td><td><code>{ plan }</code></td></tr>
+            <tr><td><code>/plans/:id/pause</code></td><td><span class="http-method method-post">POST</span></td><td>暂停计划</td><td>-</td><td><code>{ plan }</code></td></tr>
+            <tr><td><code>/plans/import</code></td><td><span class="http-method method-post">POST</span></td><td>AI导入计划</td><td><code>{ text, format }</code></td><td><code>{ plan, unrecognized[] }</code></td></tr>
+        </table>
+
+        <h4>训练会话 (打卡)</h4>
+        <table>
+            <tr><th>端点</th><th>方法</th><th>描述</th><th>请求体</th><th>响应</th></tr>
+            <tr><td><code>/sessions</code></td><td><span class="http-method method-get">GET</span></td><td>会话列表</td><td><code>?start_date=&end_date=&status=</code></td><td><code>{ items[] }</code></td></tr>
+            <tr><td><code>/sessions/:id</code></td><td><span class="http-method method-get">GET</span></td><td>会话详情</td><td>-</td><td><code>{ session, sets[] }</code></td></tr>
+            <tr><td><code>/sessions/:id/start</code></td><td><span class="http-method method-post">POST</span></td><td>开始训练</td><td>-</td><td><code>{ session }</code></td></tr>
+            <tr><td><code>/sessions/:id/complete</code></td><td><span class="http-method method-post">POST</span></td><td>完成训练</td><td><code>{ notes, rpe_avg }</code></td><td><code>{ session, prs[], stats }</code></td></tr>
+            <tr><td><code>/sessions/:id/sets</code></td><td><span class="http-method method-post">POST</span></td><td>记录组数据</td><td><code>{ exercise_id, set_number, weight, reps, completed }</code></td><td><code>{ set, is_pr? }</code></td></tr>
+            <tr><td><code>/sessions/:id/sets/:setId</code></td><td><span class="http-method method-put">PUT</span></td><td>更新组数据</td><td><code>{ weight, reps, completed, rpe }</code></td><td><code>{ set }</code></td></tr>
+            <tr><td><code>/sessions/:id/skip</code></td><td><span class="http-method method-post">POST</span></td><td>跳过训练</td><td><code>{ reason }</code></td><td><code>{ session }</code></td></tr>
+            <tr><td><code>/sessions/:id/backfill</code></td><td><span class="http-method method-post">POST</span></td><td>补签</td><td><code>{ actual_date, sets[] }</code></td><td><code>{ session }</code></td></tr>
+        </table>
+
+        <h4>数据统计</h4>
+        <table>
+            <tr><th>端点</th><th>方法</th><th>描述</th><th>请求体</th><th>响应</th></tr>
+            <tr><td><code>/stats/overview</code></td><td><span class="http-method method-get">GET</span></td><td>概览统计</td><td><code>?period=week|month|year</code></td><td><code>{ workouts, volume, streak, ... }</code></td></tr>
+            <tr><td><code>/stats/volume-trend</code></td><td><span class="http-method method-get">GET</span></td><td>容量趋势</td><td><code>?exercise_id=&category=&start=&end=</code></td><td><code>{ data_points[] }</code></td></tr>
+            <tr><td><code>/stats/exercise-progress</code></td><td><span class="http-method method-get">GET</span></td><td>动作进步</td><td><code>?exercise_id=&metric=weight|reps|volume</code></td><td><code>{ data_points[], pr_points[] }</code></td></tr>
+            <tr><td><code>/stats/body-distribution</code></td><td><span class="http-method method-get">GET</span></td><td>部位分布</td><td><code>?period=</code></td><td><code>{ categories[] }</code></td></tr>
+            <tr><td><code>/stats/heatmap</code></td><td><span class="http-method method-get">GET</span></td><td>热力图数据</td><td><code>?year=</code></td><td><code>{ days[{ date, volume, status }] }</code></td></tr>
+            <tr><td><code>/stats/prs</code></td><td><span class="http-method method-get">GET</span></td><td>PR列表</td><td><code>?exercise_id=&limit=</code></td><td><code>{ records[] }</code></td></tr>
+        </table>
+
+        <h4>身体数据</h4>
+        <table>
+            <tr><th>端点</th><th>方法</th><th>描述</th><th>请求体</th><th>响应</th></tr>
+            <tr><td><code>/body-records</code></td><td><span class="http-method method-get">GET</span></td><td>记录列表</td><td><code>?start=&end=&page=</code></td><td><code>{ items[] }</code></td></tr>
+            <tr><td><code>/body-records</code></td><td><span class="http-method method-post">POST</span></td><td>添加记录</td><td><code>{ date, weight, body_fat, measurements{}, photos[] }</code></td><td><code>{ record }</code></td></tr>
+            <tr><td><code>/body-records/:id</code></td><td><span class="http-method method-put">PUT</span></td><td>更新记录</td><td>-</td><td><code>{ record }</code></td></tr>
+            <tr><td><code>/body-records/photos</code></td><td><span class="http-method method-post">POST</span></td><td>上传对比照</td><td>multipart</td><td><code>{ photo_urls }</code></td></tr>
+        </table>
+
+        <h3>7.2 数据模型 (JSON)</h3>
+
+        <h4>Plan 请求/响应示例</h4>
+        <pre>
+// POST /plans
+{
+  "name": "HYROS 增肌计划",
+  "duration_weeks": 8,
+  "split_type": "5分化",
+  "days": [
+    {
+      "day_of_week": 1,
+      "focus": "胸+三头",
+      "estimated_duration_min": 75,
+      "exercises": [
+        {
+          "exercise_id": "BP001",
+          "sets": 4,
+          "reps_min": 8,
+          "reps_max": 10,
+          "rest_seconds": 90,
+          "sort_order": 1
+        }
+      ]
+    }
+  ]
+}
+
+// Response
+{
+  "plan": {
+    "id": "plan_abc123",
+    "name": "HYROS 增肌计划",
+    "status": "active",
+    "start_date": "2026-05-07",
+    "calendar": [
+      { "date": "2026-05-07", "status": "scheduled", "focus": "胸+三头" },
+      ...
+    ]
+  }
+}
+        </pre>
+
+        <h4>Session 完成响应示例</h4>
+        <pre>
+// POST /sessions/:id/complete
+{
+  "notes": "今天状态不错，卧推感觉稳定",
+  "rpe_avg": 8
+}
+
+// Response
+{
+  "session": {
+    "id": "sess_xyz789",
+    "status": "completed",
+    "total_duration_seconds": 4080,
+    "total_volume_kg": 8520,
+    "exercises_completed": 8,
+    "sets_completed": 28
+  },
+  "prs": [
+    {
+      "exercise_id": "BP001",
+      "exercise_name": "平板杠铃卧推",
+      "record_type": "weight_reps",
+      "weight_kg": 80,
+      "reps": 9,
+      "previous_best": { "weight_kg": 75, "reps": 8 },
+      "improvement": "+5kg, +1次"
+    }
+  ],
+  "stats": {
+    "vs_last_session": {
+      "volume_change_pct": 12.5,
+      "duration_change_min": 5
+    },
+    "muscle_groups": ["胸部: 3200kg", "三头: 1800kg", ...]
+  }
+}
+        </pre>
+
+        <h2 id="schedule"><span class="section-number">8</span> 开发排期 (Phase 1, 6周)</h2>
+
+        <h3>8.1 团队配置</h3>
+        <table>
+            <tr><th>角色</th><th>人数</th><th>职责</th></tr>
+            <tr><td>前端工程师</td><td>2人</td><td>React Native开发、UI实现、交互优化</td></tr>
+            <tr><td>后端工程师</td><td>1人</td><td>Supabase配置、API开发、数据库设计</td></tr>
+            <tr><td>UI设计师</td><td>1人</td><td>界面设计、交互动效、切图</td></tr>
+            <tr><td>产品经理</td><td>1人</td><td>需求确认、验收、用户测试</td></tr>
+        </table>
+
+        <h3>8.2 周计划</h3>
+
+        <div class="week-block">
+            <h4>Week 1: 项目初始化 + 基础架构 (5月12日 - 5月18日)</h4>
+            <ul>
+                <li>Day 1-2: 项目脚手架搭建 (Expo + TypeScript + 目录结构)</li>
+                <li>Day 2-3: 设计系统实现 (主题/颜色/字体/组件库基础)</li>
+                <li>Day 3-4: 本地数据库搭建 (SQLite + Drizzle ORM + 迁移)</li>
+                <li>Day 5: Supabase项目配置 (数据库表 + RLS策略 + 认证)</li>
+                <li>里程碑: 可运行的空壳App，能连上数据库</li>
+            </ul>
+        </div>
+
+        <div class="week-block">
+            <h4>Week 2: 用户系统 + 动作库 (5月19日 - 5月25日)</h4>
+            <ul>
+                <li>Day 1-2: 用户注册/登录/资料页 (手机号验证码 + Supabase Auth)</li>
+                <li>Day 3-4: 动作库模块 (300个基础动作数据 + 搜索/筛选/分类)</li>
+                <li>Day 4-5: 设置页面 (单位切换/主题/通知偏好)</li>
+                <li>Day 5: 离线同步引擎基础版 (本地写 + 队列)</li>
+                <li>里程碑: 用户可注册登录，浏览动作库</li>
+            </ul>
+        </div>
+
+        <div class="week-block">
+            <h4>Week 3: 计划创建核心 (5月26日 - 6月1日)</h4>
+            <ul>
+                <li>Day 1-2: 创建计划 Step1/Step2 (基础信息 + 训练日设置)</li>
+                <li>Day 2-3: 创建计划 Step3 (动作搜索/添加/参数设置)</li>
+                <li>Day 3-4: 拖拽排序 + 超级组标记</li>
+                <li>Day 4-5: 计划预览/保存 + 日历生成逻辑</li>
+                <li>里程碑: 用户可创建完整训练计划</li>
+            </ul>
+        </div>
+
+        <div class="week-block">
+            <h4>Week 4: 日历视图 + 计划管理 (6月2日 - 6月8日)</h4>
+            <ul>
+                <li>Day 1-2: 日历组件 (月历/状态标记/左右滑动)</li>
+                <li>Day 2-3: 今日训练卡片 + 本周进度条 + 连续打卡</li>
+                <li>Day 3-4: 计划列表页 (进行中/已结束/草稿)</li>
+                <li>Day 4-5: 计划编辑 (增删改动作/全局替换/复制)</li>
+                <li>里程碑: 首页日历完整可用，计划可管理</li>
+            </ul>
+        </div>
+
+        <div class="week-block">
+            <h4>Week 5: 训练打卡界面 (核心页面) (6月9日 - 6月15日)</h4>
+            <ul>
+                <li>Day 1-2: 训练页面布局 (动作列表/组显示/输入框)</li>
+                <li>Day 2-3: 组打卡交互 (复选框/重量次数输入/快捷按钮)</li>
+                <li>Day 3-4: 组间计时器 (自动启动/暂停/跳过/震动提醒)</li>
+                <li>Day 4-5: 超级组显示 + 上次数据回显 + 训练进度统计</li>
+                <li>Day 5: 完成训练 → 总结页跳转</li>
+                <li>里程碑: 核心训练打卡流程跑通</li>
+            </ul>
+        </div>
+
+        <div class="week-block">
+            <h4>Week 6: 数据看板 + 测试优化 (6月16日 - 6月22日)</h4>
+            <ul>
+                <li>Day 1-2: 训练总结页 (时长/容量/对比/PR展示)</li>
+                <li>Day 2-3: 数据看板 (概览卡片/容量趋势图/部位分布)</li>
+                <li>Day 3-4: 热力图 (GitHub风格日历)</li>
+                <li>Day 4-5: 端到端测试 + 性能优化 (启动时间/页面切换)</li>
+                <li>Day 5: Bug修复 + 内部测试 + 验收</li>
+                <li>里程碑: MVP完整可用，进入内测</li>
+            </ul>
+        </div>
+
+        <h3>8.3 工作量评估</h3>
+        <table>
+            <tr><th>模块</th><th>预估工时 (人天)</th><th>复杂度</th><th>风险</th></tr>
+            <tr><td>项目搭建/设计系统</td><td>8</td><td>中</td><td>低</td></tr>
+            <tr><td>数据库/ORM/同步</td><td>10</td><td>高</td><td>中</td></tr>
+            <tr><td>用户系统</td><td>6</td><td>低</td><td>低</td></tr>
+            <tr><td>动作库</td><td>6</td><td>中</td><td>低</td></tr>
+            <tr><td>计划创建</td><td>14</td><td>高</td><td>中</td></tr>
+            <tr><td>日历视图</td><td>10</td><td>高</td><td>中</td></tr>
+            <tr><td>训练打卡 (核心)</td><td>16</td><td>很高</td><td>高</td></tr>
+            <tr><td>计时器系统</td><td>6</td><td>中</td><td>中</td></tr>
+            <tr><td>训练总结</td><td>6</td><td>中</td><td>低</td></tr>
+            <tr><td>数据看板/图表</td><td>10</td><td>高</td><td>中</td></tr>
+            <tr><td>PR检测</td><td>4</td><td>中</td><td>低</td></tr>
+            <tr><td>测试/优化</td><td>8</td><td>中</td><td>低</td></tr>
+            <tr><td><strong>总计</strong></td><td><strong>104人天</strong></td><td></td><td></td></tr>
+        </table>
+        <p>按3人研发团队 (2前端 + 1后端) 计算，约 <span class="highlight">6周</span> 可完成MVP。</p>
+
+        <h2 id="risk"><span class="section-number">9</span> 风险点与应对方案</h2>
+
+        <div class="risk-item">
+            <div class="risk-level risk-high">高风险</div>
+            <div class="risk-content">
+                <h4>训练打卡页面性能 (列表卡顿/输入延迟)</h4>
+                <p>训练页面需要同时渲染多个动作的多个组，包含大量输入框和计时器。在低端安卓设备上可能出现明显卡顿。</p>
+                <p><span class="accent">应对:</span></p>
+                <ul>
+                    <li>使用 FlatList + getItemLayout 优化长列表</li>
+                    <li>组输入使用受控组件 + debounce，避免每次输入都重渲染整个列表</li>
+                    <li>使用 React.memo + useMemo 隔离子组件重渲染</li>
+                    <li>考虑虚拟化: 只渲染可见区域内的组</li>
+                    <li>Week 5 预留1天专门做性能测试和优化</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="risk-item">
+            <div class="risk-level risk-high">高风险</div>
+            <div class="risk-content">
+                <h4>离线同步数据冲突/丢失</h4>
+                <p>用户可能在多设备/弱网环境下操作，数据冲突和同步延迟会导致训练记录丢失或覆盖。</p>
+                <p><span class="accent">应对:</span></p>
+                <ul>
+                    <li>本地始终为主数据源，云端为备份</li>
+                    <li>实现操作日志 (Operation Log) 模式，记录每次修改的操作类型和目标</li>
+                    <li>冲突时优先保留用户最新操作，同时备份冲突数据供人工恢复</li>
+                    <li>全量数据哈希校验，每周自动比对</li>
+                    <li>提供"导出备份"功能，用户可手动导出SQLite文件</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="risk-item">
+            <div class="risk-level risk-high">高风险</div>
+            <div class="risk-content">
+                <h4>组间计时器后台保活</h4>
+                <p>训练时用户可能锁屏或切换到其他App，计时器需要在后台持续运行并在结束时提醒。</p>
+                <p><span class="accent">应对:</span></p>
+                <ul>
+                    <li>使用 expo-background-timer 实现后台计时</li>
+                    <li>结合 expo-notifications 在计时结束时发送本地通知</li>
+                    <li>记录计时开始时间戳，App回到前台时计算已流逝时间 (防杀后台)</li>
+                    <li>Android: 使用前台服务 (Foreground Service) 提高保活率</li>
+                    <li>iOS: 依赖后台任务API (BackgroundFetch)，限制较多</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="risk-item">
+            <div class="risk-level risk-mid">中风险</div>
+            <div class="risk-content">
+                <h4>AI文本导入准确率不足</h4>
+                <p>规则引擎对非标准格式、混合语言、手写笔记等场景识别率可能低于预期。</p>
+                <p><span class="accent">应对:</span></p>
+                <ul>
+                    <li>MVP阶段明确标注为"Beta功能"，管理用户预期</li>
+                    <li>提供丰富的示例文本引导用户粘贴标准格式</li>
+                    <li>未识别项高亮显示，一键手动修正</li>
+                    <li>收集用户修正数据，为后续LLM微调积累语料</li>
+                    <li>Phase 2接入LLM作为高置信度备选</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="risk-item">
+            <div class="risk-level risk-mid">中风险</div>
+            <div class="risk-content">
+                <h4>图表库在React Native中的兼容性</h4>
+                <p>数据看板需要多种图表类型，部分React Native图表库在安卓上表现不稳定。</p>
+                <p><span class="accent">应对:</span></p>
+                <ul>
+                    <li>优先选择纯JS实现的图表库 (react-native-gifted-charts)</li>
+                    <li>备选: 使用 WebView + ECharts 封装</li>
+                    <li>复杂图表降级为纯CSS实现 (如热力图)</li>
+                    <li>Week 6 预留时间做图表兼容性测试</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="risk-item">
+            <div class="risk-level risk-mid">中风险</div>
+            <div class="risk-content">
+                <h4>Supabase免费档容量/并发限制</h4>
+                <p>Supabase免费档有数据库大小和并发连接限制，用户量增长后可能触发限制。</p>
+                <p><span class="accent">应对:</span></p>
+                <ul>
+                    <li>设计阶段控制单用户数据量 (训练记录保留2年，过期归档)</li>
+                    <li>图片/文件使用Supabase Storage，不存数据库</li>
+                    <li>监控数据库大小，设定告警阈值</li>
+                    <li>预留迁移方案: 数据可导出，架构与自建PostgreSQL兼容</li>
+                    <li>用户量接近限制时平滑升级至Pro档 ($25/月)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="risk-item">
+            <div class="risk-level risk-low">低风险</div>
+            <div class="risk-content">
+                <h4>React Native升级兼容性</h4>
+                <p>Expo SDK 或 React Native 大版本升级可能引入破坏性变更。</p>
+                <p><span class="accent">应对:</span></p>
+                <ul>
+                    <li>锁定版本，MVP阶段不主动升级大版本</li>
+                    <li>使用 Expo 托管工作流，减少原生依赖</li>
+                    <li>核心逻辑与框架解耦，便于迁移</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="risk-item">
+            <div class="risk-level risk-low">低风险</div>
+            <div class="risk-content">
+                <h4>应用商店审核延迟</h4>
+                <p>首次上架App Store和Google Play可能审核不通过或延迟。</p>
+                <p><span class="accent">应对:</span></p>
+                <ul>
+                    <li>MVP阶段优先使用 Expo EAS 发布，简化流程</li>
+                    <li>提前准备隐私政策、用户协议</li>
+                    <li>iOS TestFlight / Google Play Internal Testing 先行</li>
+                </ul>
+            </div>
+        </div>
+
+        <div style="margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 13px; text-align: center;">
+            <p>HYROS Fit 开发方案文档 V1.0 | 启明科技 (Metanoia) 技术部</p>
+            <p>生成时间: 2026-05-07 | 审核人: wenner (主脑) → 嘉文 (CEO)</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>HYROS Fit — 测试报告</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #212121; color: #fff; padding: 24px; max-width: 1200px; margin: 0 auto; }
+    h1 { color: #E53935; border-bottom: 2px solid #E53935; padding-bottom: 12px; }
+    h2 { color: #00C853; margin-top: 32px; }
+    .issue { background: #2D2D2D; padding: 16px; border-radius: 12px; margin-top: 12px; border-left: 4px solid; }
+    .critical { border-left-color: #FF5252; }
+    .high { border-left-color: #FFC107; }
+    .medium { border-left-color: #2196F3; }
+    .low { border-left-color: #B0B0B0; }
+    .fixed { opacity: 0.75; }
+    .fixed .status { color: #00C853; }
+    .status { font-weight: 700; }
+    .pass { color: #00C853; }
+    .fail { color: #FF5252; }
+    .warn { color: #FFC107; }
+    code { background: #3A3A3A; padding: 2px 6px; border-radius: 4px; font-family: 'SF Mono', monospace; font-size: 13px; }
+    .summary { background: #2D2D2D; padding: 16px; border-radius: 12px; margin-top: 16px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+    th { background: #2D2D2D; color: #B0B0B0; padding: 10px; text-align: left; border: 1px solid #424242; }
+    td { padding: 10px; border: 1px solid #424242; }
+  </style>
+</head>
+<body>
+  <h1>HYROS Fit v1.0 MVP — 测试报告</h1>
+  <p>报告版本：v1.0 | 生成日期：2026-05-07 | 审查方式：静态代码审查 + 逻辑推演</p>
+
+  <div class="summary">
+    <h3>执行摘要</h3>
+    <table>
+      <tr><th>维度</th><th>结果</th></tr>
+      <tr><td>数据库Schema完整性</td><td class="pass">通过 — 8张表，字段类型正确</td></tr>
+      <tr><td>SQL注入风险</td><td class="pass">通过 — 全部使用参数化查询</td></tr>
+      <tr><td>业务逻辑正确性</td><td class="warn">发现3项缺陷，已修复</td></tr>
+      <tr><td>空状态处理</td><td class="warn">部分页面空状态不足，已补充</td></tr>
+      <tr><td>导航稳定性</td><td class="warn">发现1项导航缺陷，已修复</td></tr>
+      <tr><td>内存泄漏</td><td class="pass">通过 — 计时器已清理</td></tr>
+    </table>
+  </div>
+
+  <h2>发现问题清单</h2>
+
+  <div class="issue critical fixed">
+    <p><span class="status">[已修复]</span> <strong>ISSUE-001 — CalendarScreen 缺少函数导入（运行时错误）</strong></p>
+    <p><strong>位置：</strong> <code>screens/CalendarScreen.js</code></p>
+    <p><strong>问题：</strong> <code>onDayPress</code> 中调用了 <code>getWorkoutLogByDate</code>，但未在文件顶部 import。运行时调用会直接抛出 <code>TypeError: getWorkoutLogByDate is not a function</code>，导致日历日期详情功能完全不可用。</p>
+    <p><strong>修复：</strong> 在 import 语句中添加 <code>getWorkoutLogByDate</code>。</p>
+  </div>
+
+  <div class="issue high fixed">
+    <p><span class="status">[已修复]</span> <strong>ISSUE-002 — CalendarScreen 今日安排 day_index 不匹配（逻辑错误）</strong></p>
+    <p><strong>位置：</strong> <code>screens/CalendarScreen.js</code> 的 <code>getTodayPlanDay()</code></p>
+    <p><strong>问题：</strong> <code>new Date().getDay()</code> 返回 0-6（周日=0），但计划创建时 <code>day_index</code> 按 0-6 对应周一到周日。导致日历"今日安排"显示的肌群永远错位（例如周一显示周日的训练内容）。</p>
+    <p><strong>修复：</strong> 将 <code>getDay()</code> 转换为以周一为0的索引： <code>(new Date().getDay() + 6) % 7</code>。</p>
+  </div>
+
+  <div class="issue high fixed">
+    <p><span class="status">[已修复]</span> <strong>ISSUE-003 — ProfileScreen 退出登录导航失效（功能失效）</strong></p>
+    <p><strong>位置：</strong> <code>screens/ProfileScreen.js</code></p>
+    <p><strong>问题：</strong> 退出登录后调用 <code>navigation.replace('Login')</code>。由于 Login Screen 仅在 <code>userToken == null</code> 的分支中注册，当前处于已登录分支的 Stack 中不存在 Login route，<code>replace</code> 动作可能无法冒泡到父 Stack Navigator，导致用户停留在原页面或导航异常。</p>
+    <p><strong>修复：</strong> 使用 <code>navigation.getParent()?.navigate('Login')</code> 或改用全局状态触发 App 重新渲染。MVP中简化为 <code>navigation.navigate('Login')</code> 让导航冒泡处理，并确保 App 层级监听 token 变化。</p>
+  </div>
+
+  <div class="issue medium fixed">
+    <p><span class="status">[已修复]</span> <strong>ISSUE-004 — CreatePlanScreen uid 为空时崩溃风险</strong></p>
+    <p><strong>位置：</strong> <code>screens/CreatePlanScreen.js</code> 的 <code>handleCreate</code></p>
+    <p><strong>问题：</strong> <code>const uid = await AsyncStorage.getItem('userToken')</code> 可能返回 null，<code>parseInt(null)</code> 得到 <code>NaN</code>，传入数据库会导致插入失败或不可预期行为。</p>
+    <p><strong>修复：</strong> 添加 guard clause：若 <code>!uid</code> 则 Alert 提示并返回。</p>
+  </div>
+
+  <div class="issue medium fixed">
+    <p><span class="status">[已修复]</span> <strong>ISSUE-005 — WorkoutLogScreen 空状态缺失</strong></p>
+    <p><strong>位置：</strong> <code>screens/WorkoutLogScreen.js</code></p>
+    <p><strong>问题：</strong> 当 <code>planDayId</code> 缺失时，页面无任何提示，用户看到空白页面。</p>
+    <p><strong>修复：</strong> 在渲染区域添加空状态提示：若 <code>!planDayId</code> 则显示"未选择训练日"的引导文案。</p>
+  </div>
+
+  <div class="issue medium fixed">
+    <p><span class="status">[已修复]</span> <strong>ISSUE-006 — HomeScreen 导入未导出函数（潜在运行时风险）</strong></p>
+    <p><strong>位置：</strong> <code>screens/HomeScreen.js</code></p>
+    <p><strong>问题：</strong> 导入了 <code>getActivePlan</code> 但该函数在 <code>database/operations.js</code> 中不存在。虽然当前代码未实际调用此函数（使用了 <code>allPlans.find</code> 替代），但多余的未解析导入在某些打包环境下可能引发问题。</p>
+    <p><strong>修复：</strong> 移除未使用的 <code>getActivePlan</code> import；在 <code>operations.js</code> 中补充 <code>getActivePlan</code> 函数定义以备将来使用。</p>
+  </div>
+
+  <div class="issue low">
+    <p><span class="status">[已确认 — MVP限制]</span> <strong>ISSUE-007 — 密码明文存储</strong></p>
+    <p><strong>位置：</strong> <code>database/operations.js</code> 的 <code>createUser</code></p>
+    <p><strong>问题：</strong> 密码以明文形式存储在 SQLite 中，存在安全风险。</p>
+    <p><strong>说明：</strong> MVP 阶段接受此限制。V1.1 应引入 bcrypt 或至少 SHA256 哈希。</p>
+  </div>
+
+  <div class="issue low">
+    <p><span class="status">[已确认 — 性能优化项]</span> <strong>ISSUE-008 — WorkoutLogScreen 每次输入触发数据库更新</strong></p>
+    <p><strong>位置：</strong> <code>screens/WorkoutLogScreen.js</code> 的 <code>handleUpdateSet</code></p>
+    <p><strong>问题：</strong> 用户在重量/次数输入框每输入一个字符都触发 <code>updateWorkoutSet</code> 数据库写操作，快速输入时造成不必要的 I/O。</p>
+    <p><strong>说明：</strong> MVP 阶段功能正常，不影响可用性。V1.1 应引入 debounce 批量写入。</p>
+  </div>
+
+  <div class="issue low">
+    <p><span class="status">[已确认 — 架构改进项]</span> <strong>ISSUE-009 — 多步数据库操作无事务保护</strong></p>
+    <p><strong>位置：</strong> <code>database/operations.js</code> 的 <code>deletePlan</code>、<code>setActivePlan</code></p>
+    <p><strong>问题：</strong> <code>deletePlan</code> 执行3条 DELETE，<code>setActivePlan</code> 执行2条 UPDATE，均无事务包裹。中间失败会导致数据不一致。</p>
+    <p><strong>说明：</strong> MVP 阶段概率极低（本地SQLite，单用户）。V1.1 应使用 <code>db.withTransactionAsync</code> 包裹。</p>
+  </div>
+
+  <h2>代码质量评分</h2>
+  <div class="summary">
+    <ul>
+      <li><strong>整体可运行性：</strong> <span class="pass">高</span> — 修复后核心流程无阻塞缺陷</li>
+      <li><strong>数据完整性：</strong> <span class="pass">高</span> — Schema完整，参数化查询防注入</li>
+      <li><strong>边界处理：</strong> <span class="warn">中</span> — 已修复主要空值和未定义场景，部分边缘场景待完善</li>
+      <li><strong>可维护性：</strong> <span class="pass">高</span> — 文件结构清晰，命名规范，注释充分</li>
+    </ul>
+    <p><strong>结论：</strong> 修复5项问题后，MVP版本达到可发布状态。建议在真机上进行完整功能走查后再交付。</p>
+  </div>
+
+</body>
+</html>

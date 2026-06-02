@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>HYROS Fit — 测试用例文档</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #212121; color: #fff; padding: 24px; max-width: 1200px; margin: 0 auto; }
+    h1 { color: #E53935; border-bottom: 2px solid #E53935; padding-bottom: 12px; }
+    h2 { color: #00C853; margin-top: 32px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 14px; }
+    th { background: #2D2D2D; color: #B0B0B0; padding: 10px; text-align: left; border: 1px solid #424242; }
+    td { padding: 10px; border: 1px solid #424242; vertical-align: top; }
+    tr:nth-child(even) { background: #2D2D2D; }
+    .p0 { color: #FF5252; font-weight: 700; }
+    .p1 { color: #FFC107; font-weight: 700; }
+    .p2 { color: #B0B0B0; font-weight: 700; }
+    .summary { background: #2D2D2D; padding: 16px; border-radius: 12px; margin-top: 16px; }
+    .pass { color: #00C853; }
+    .fail { color: #FF5252; }
+    .warn { color: #FFC107; }
+  </style>
+</head>
+<body>
+  <h1>HYROS Fit v1.0 MVP — 测试用例文档</h1>
+  <p>文档版本：v1.0 | 生成日期：2026-05-07</p>
+
+  <div class="summary">
+    <h3>测试概述</h3>
+    <ul>
+      <li><strong>测试范围：</strong>P0 核心功能（用户系统、训练计划、动作库、日历、训练打卡、统计、数据持久化）</li>
+      <li><strong>测试环境：</strong>Expo SDK 51 / React Native 0.74 / expo-sqlite ~14.0.0 / Android 目标</li>
+      <li><strong>测试方式：</strong>静态代码审查 + 逻辑推演（服务器无安卓模拟器，无法进行真机/模拟器测试）</li>
+      <li><strong>用例总数：</strong>42 条</li>
+    </ul>
+  </div>
+
+  <h2>一、用户注册/登录（7条）</h2>
+  <table>
+    <tr><th>用例ID</th><th>测试项</th><th>前置条件</th><th>操作步骤</th><th>预期结果</th><th>优先级</th></tr>
+    <tr><td>USR-001</td><td>正常注册</td><td>App已初始化数据库</td><td>1. 进入注册页 2. 输入用户名"test"、密码"1234"、确认密码"1234" 3. 点击注册</td><td>注册成功，提示"注册完成，请登录"，返回登录页</td><td class="p0">P0</td></tr>
+    <tr><td>USR-002</td><td>用户名为空注册</td><td>在注册页</td><td>1. 不填用户名 2. 输入密码 3. 点击注册</td><td>提示"请填写用户名和密码"，不提交</td><td class="p0">P0</td></tr>
+    <tr><td>USR-003</td><td>密码不一致</td><td>在注册页</td><td>1. 输入用户名 2. 密码"1234" 3. 确认密码"5678" 4. 点击注册</td><td>提示"两次输入的密码不一致"</td><td class="p0">P0</td></tr>
+    <tr><td>USR-004</td><td>密码长度不足</td><td>在注册页</td><td>1. 输入用户名 2. 密码"12" 3. 确认密码"12" 4. 点击注册</td><td>提示"密码至少4位"</td><td class="p0">P0</td></tr>
+    <tr><td>USR-005</td><td>重复注册</td><td>用户"test"已存在</td><td>1. 输入用户名"test" 2. 输入密码 3. 点击注册</td><td>提示"用户名已被注册"</td><td class="p0">P0</td></tr>
+    <tr><td>USR-006</td><td>正常登录</td><td>用户"test"已注册，密码"1234"</td><td>1. 进入登录页 2. 输入用户名"test"、密码"1234" 3. 点击登录</td><td>登录成功，跳转到首页Tab</td><td class="p0">P0</td></tr>
+    <tr><td>USR-007</td><td>退出登录</td><td>已登录状态</td><td>1. 进入"我的"页 2. 点击"退出登录" 3. 确认</td><td>清除token，跳转回登录页</td><td class="p0">P0</td></tr>
+  </table>
+
+  <h2>二、创建训练计划（7条）</h2>
+  <table>
+    <tr><th>用例ID</th><th>测试项</th><th>前置条件</th><th>操作步骤</th><th>预期结果</th><th>优先级</th></tr>
+    <tr><td>PLN-001</td><td>正常创建全身训练计划</td><td>已登录</td><td>1. 进入训练页 2. 点击新建 3. 输入名称"增肌A" 4. 选全身模板 5. 保存并添加动作 6. 选择动作 7. 完成</td><td>计划创建成功，数据库有记录，返回训练页可见</td><td class="p0">P0</td></tr>
+    <tr><td>PLN-002</td><td>计划名称为空</td><td>在创建页step1</td><td>1. 不输入名称 2. 选择模板 3. 点击保存</td><td>提示"请输入计划名称"</td><td class="p0">P0</td></tr>
+    <tr><td>PLN-003</td><td>切换分化模板</td><td>在创建页step1</td><td>1. 先选全身模板 2. 再选推/拉/腿模板</td><td>step2训练日列表按新模板重新生成</td><td class="p0">P0</td></tr>
+    <tr><td>PLN-004</td><td>修改训练日名称</td><td>在创建页step2</td><td>1. 点击训练日名称输入框 2. 修改文字</td><td>名称实时更新</td><td class="p1">P1</td></tr>
+    <tr><td>PLN-005</td><td>设置休息日</td><td>在创建页step2</td><td>1. 点击"训练日"切换按钮</td><td>变为"休息日"，颜色变化，肌群提示消失</td><td class="p0">P0</td></tr>
+    <tr><td>PLN-006</td><td>添加重复动作</td><td>在创建页step3</td><td>1. 添加"杠铃卧推" 2. 再次点击"杠铃卧推"</td><td>第二次无反应/不添加重复项</td><td class="p1">P1</td></tr>
+    <tr><td>PLN-007</td><td>激活计划</td><td>已创建多个计划</td><td>1. 在训练页展开计划 2. 点击"设为活跃"</td><td>该计划显示"活跃"标签，首页显示该计划</td><td class="p0">P0</td></tr>
+  </table>
+
+  <h2>三、动作库（4条）</h2>
+  <table>
+    <tr><th>用例ID</th><th>测试项</th><th>前置条件</th><th>操作步骤</th><th>预期结果</th><th>优先级</th></tr>
+    <tr><td>EXL-001</td><td>动作库完整性</td><td>进入动作库页</td><td>1. 查看列表</td><td>50个动作全部显示，覆盖胸部/背部/腿部/肩部/手臂/腹部/有氧</td><td class="p0">P0</td></tr>
+    <tr><td>EXL-002</td><td>分类切换</td><td>在动作库页</td><td>1. 点击"背部"分类标签</td><td>只显示背部相关动作（9个）</td><td class="p0">P0</td></tr>
+    <tr><td>EXL-003</td><td>搜索过滤</td><td>在动作库页</td><td>1. 搜索框输入"深蹲"</td><td>只显示"深蹲"动作</td><td class="p0">P0</td></tr>
+    <tr><td>EXL-004</td><td>搜索无结果</td><td>在动作库页</td><td>1. 输入"不存在的动作"</td><td>列表为空，不崩溃</td><td class="p1">P1</td></tr>
+  </table>
+
+  <h2>四、日历视图（4条）</h2>
+  <table>
+    <tr><th>用例ID</th><th>测试项</th><th>前置条件</th><th>操作步骤</th><th>预期结果</th><th>优先级</th></tr>
+    <tr><td>CAL-001</td><td>日期切换</td><td>在日历页</td><td>1. 点击不同日期</td><td>下方详情区域更新为选中日期</td><td class="p0">P0</td></tr>
+    <tr><td>CAL-002</td><td>训练标记</td><td>有历史训练记录</td><td>1. 查看日历</td><td>训练过的日期有绿色圆点标记</td><td class="p0">P0</td></tr>
+    <tr><td>CAL-003</td><td>今日高亮</td><td>在日历页</td><td>1. 查看当日</td><td>当日文字为品牌红色高亮</td><td class="p0">P0</td></tr>
+    <tr><td>CAL-004</td><td>今日安排显示</td><td>有活跃计划</td><td>1. 查看"今日安排"区域</td><td>显示今日应训练的内容，可点击进入打卡</td><td class="p0">P0</td></tr>
+  </table>
+
+  <h2>五、训练打卡（6条）</h2>
+  <table>
+    <tr><th>用例ID</th><th>测试项</th><th>前置条件</th><th>操作步骤</th><th>预期结果</th><th>优先级</th></tr>
+    <tr><td>LOG-001</td><td>进入打卡页</td><td>有活跃计划和训练日</td><td>1. 从训练页或日历点击进入训练日</td><td>显示该日所有动作和组数模板</td><td class="p0">P0</td></tr>
+    <tr><td>LOG-002</td><td>添加组</td><td>在打卡页</td><td>1. 点击"添加组"</td><td>新增一行输入框，组号递增</td><td class="p0">P0</td></tr>
+    <tr><td>LOG-003</td><td>组打卡勾选</td><td>在打卡页有未完成的组</td><td>1. 输入重量和次数 2. 点击圆形勾选按钮</td><td>勾选状态切换，数据库is_completed更新</td><td class="p0">P0</td></tr>
+    <tr><td>LOG-004</td><td>重量/次数输入</td><td>在打卡页</td><td>1. 点击重量输入框 2. 输入"80" 3. 点击次数输入框 4. 输入"10"</td><td>输入值正确显示，数据库保存</td><td class="p0">P0</td></tr>
+    <tr><td>LOG-005</td><td>计时器启动/暂停</td><td>在打卡页</td><td>1. 点击计时器图标 2. 进入计时器页 3. 点击开始 4. 点击暂停 5. 倒计时结束</td><td>计时正常，结束震动提醒</td><td class="p0">P0</td></tr>
+    <tr><td>LOG-006</td><td>完成训练</td><td>在打卡页有已完成组</td><td>1. 点击"完成训练" 2. 确认</td><td>计算总容量和组数，保存到数据库，返回上一页</td><td class="p0">P0</td></tr>
+  </table>
+
+  <h2>六、数据统计（4条）</h2>
+  <table>
+    <tr><th>用例ID</th><th>测试项</th><th>前置条件</th><th>操作步骤</th><th>预期结果</th><th>优先级</th></tr>
+    <tr><td>STA-001</td><td>总训练次数显示</td><td>有训练记录</td><td>1. 进入统计页</td><td>显示总训练次数，与数据库count一致</td><td class="p0">P0</td></tr>
+    <tr><td>STA-002</td><td>总容量计算</td><td>有训练记录</td><td>1. 进入统计页</td><td>总容量 = 所有已完成组重量×次数之和</td><td class="p0">P0</td></tr>
+    <tr><td>STA-003</td><td>连续打卡计数</td><td>有连续多日记录</td><td>1. 进入统计页</td><td>连续打卡天数正确显示（断开后归零）</td><td class="p0">P0</td></tr>
+    <tr><td>STA-004</td><td>本周趋势图</td><td>有本周记录</td><td>1. 进入统计页</td><td>7根柱状图显示每日容量，最高柱满高</td><td class="p0">P0</td></tr>
+  </table>
+
+  <h2>七、数据持久化（3条）</h2>
+  <table>
+    <tr><th>用例ID</th><th>测试项</th><th>前置条件</th><th>操作步骤</th><th>预期结果</th><th>优先级</th></tr>
+    <tr><td>DB-001</td><td>关闭App后重开数据保留</td><td>已登录、已创建计划、已有训练记录</td><td>1. 完全关闭App（杀后台）2. 重新打开</td><td>仍自动登录，计划和记录都在</td><td class="p0">P0</td></tr>
+    <tr><td>DB-002</td><td>数据库Schema完整</td><td>首次安装</td><td>1. 首次打开App</td><td>8张表全部创建成功，无报错</td><td class="p0">P0</td></tr>
+    <tr><td>DB-003</td><td>SQL注入防护</td><td>任意输入场景</td><td>1. 在所有输入框尝试特殊字符"'; DROP TABLE--"</td><td>数据正常保存/查询，无表被删除</td><td class="p0">P0</td></tr>
+  </table>
+
+  <h2>八、UI/UX（4条）</h2>
+  <table>
+    <tr><th>用例ID</th><th>测试项</th><th>前置条件</th><th>操作步骤</th><th>预期结果</th><th>优先级</th></tr>
+    <tr><td>UI-001</td><td>深色模式一致性</td><td>所有页面</td><td>1. 逐页检查</td><td>所有页面背景#212121，文字白色，卡片#2D2D2D</td><td class="p0">P0</td></tr>
+    <tr><td>UI-002</td><td>大字体可读性</td><td>系统字体调至最大</td><td>1. 在各页面检查文字截断</td><td>关键文字不被截断，ScrollView可滚动</td><td class="p1">P1</td></tr>
+    <tr><td>UI-003</td><td>按钮响应</td><td>所有可点击区域</td><td>1. 点击所有按钮</td><td>点击有视觉反馈（opacity变化或颜色变化）</td><td class="p1">P1</td></tr>
+    <tr><td>UI-004</td><td>页面切换</td><td>已登录</td><td>1. 在各Tab和Stack页面间切换</td><td>导航正常，无白屏/黑屏/闪退</td><td class="p0">P0</td></tr>
+  </table>
+
+  <h2>九、兼容性（3条）</h2>
+  <table>
+    <tr><th>用例ID</th><th>测试项</th><th>前置条件</th><th>操作步骤</th><th>预期结果</th><th>优先级</th></tr>
+    <tr><td>CMP-001</td><td>Android版本兼容</td><td>目标Android 10+</td><td>1. 在Android 10/12/14设备上安装</td><td>App正常启动，核心功能可用</td><td class="p0">P0</td></tr>
+    <tr><td>CMP-002</td><td>不同屏幕尺寸</td><td>小屏/大屏设备</td><td>1. 在5寸和6.7寸设备上运行</td><td>布局自适应，无元素重叠</td><td class="p1">P1</td></tr>
+    <tr><td>CMP-003</td><td>离线可用</td><td>关闭网络</td><td>1. 关闭WiFi和移动数据 2. 使用所有功能</td><td>所有功能正常（数据库本地）</td><td class="p0">P0</td></tr>
+  </table>
+
+  <h2>测试执行摘要</h2>
+  <div class="summary">
+    <p>静态代码审查结果（详见 test-report.html）：</p>
+    <ul>
+      <li>用例设计总数：<strong>42 条</strong>，覆盖 9 大模块</li>
+      <li>代码级发现 issues：<strong>6 项</strong></li>
+      <li>已修复：<strong>5 项</strong></li>
+      <li>遗留（已知限制）：<strong>1 项</strong>（密码明文存储，MVP阶段接受）</li>
+    </ul>
+  </div>
+
+</body>
+</html>

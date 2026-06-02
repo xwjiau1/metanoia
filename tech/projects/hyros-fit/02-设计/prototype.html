@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>HYROS Fit - 原型预览</title>
+<style>
+:root{--primary:#E53935;--bg:#212121;--surface:#2D2D2D;--surface-light:#3A3A3A;--accent:#00C853;--warning:#FFB300;--error:#FF5252;--text:#FFFFFF;--text-secondary:#B0B0B0;--text-muted:#757575;--border:#424242;--shadow:0 4px 20px rgba(0,0,0,0.4);--radius:16px;--radius-sm:10px;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans SC',sans-serif;background:#111;color:var(--text);overflow:hidden;height:100vh;display:flex;justify-content:center;align-items:center;}
+.phone{width:390px;height:844px;background:var(--bg);border-radius:40px;box-shadow:0 0 0 12px #333,0 20px 60px rgba(0,0,0,0.6);overflow:hidden;position:relative;flex-shrink:0;}
+.screen{height:100%;overflow-y:auto;overflow-x:hidden;position:relative;scroll-behavior:smooth;padding-bottom:80px;}
+.screen::-webkit-scrollbar{display:none;}
+
+/* Animations */
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+@keyframes slideIn{from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:translateX(0);}}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.02);}}
+@keyframes timerPulse{0%,100%{opacity:1;}50%{opacity:0.6;}}
+@keyframes progress{from{width:0;}to{width:100%;}}
+@keyframes checkPop{0%{transform:scale(0);}70%{transform:scale(1.15);}100%{transform:scale(1);}}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-3px);}}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
+.page{display:none;animation:fadeIn 0.35s ease-out;}
+.page.active{display:block;}
+
+/* Header */
+.header{position:sticky;top:0;z-index:50;background:linear-gradient(180deg,var(--bg) 80%,transparent);padding:16px 20px 8px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(10px);}
+.header h1{font-size:22px;font-weight:700;letter-spacing:-0.3px;}
+.header .subtitle{font-size:13px;color:var(--text-muted);margin-top:2px;}
+.header-back{width:36px;height:36px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;}
+.header-back:hover{background:var(--surface-light);}
+.header-action{width:36px;height:36px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+
+/* Bottom Nav */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;height:72px;background:linear-gradient(0deg,var(--bg) 70%,transparent);display:flex;justify-content:space-around;align-items:center;padding:8px 12px 20px;z-index:100;border-top:1px solid rgba(255,255,255,0.05);}
+.bottom-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;opacity:0.5;transition:all 0.2s;padding:4px;}
+.bottom-nav-item.active{opacity:1;}
+.bottom-nav-item.active .nav-icon{color:var(--primary);}
+.bottom-nav-item.active .nav-label{color:var(--primary);font-weight:600;}
+.nav-icon{width:24px;height:24px;transition:all 0.2s;}
+.nav-label{font-size:11px;color:var(--text-secondary);transition:all 0.2s;}
+
+/* Cards */
+.card{background:var(--surface);border-radius:var(--radius);padding:16px;margin:12px 16px;transition:all 0.2s;}
+.card:active{transform:scale(0.98);}
+.card-hover:hover{background:var(--surface-light);}
+
+/* Buttons */
+.btn{background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);padding:14px 24px;font-size:16px;font-weight:600;cursor:pointer;width:100%;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn:active{transform:scale(0.97);opacity:0.9;}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text);}
+.btn-outline:hover{border-color:var(--primary);color:var(--primary);}
+.btn-accent{background:var(--accent);}
+.btn-sm{padding:8px 16px;font-size:13px;border-radius:8px;width:auto;}
+.btn-circle{width:48px;height:48px;border-radius:50%;padding:0;}
+
+/* Forms */
+.input{background:var(--surface-light);border:1.5px solid transparent;border-radius:var(--radius-sm);padding:14px 16px;color:var(--text);font-size:16px;width:100%;outline:none;transition:all 0.2s;}
+.input:focus{border-color:var(--primary);}
+.input::placeholder{color:var(--text-muted);}
+textarea.input{min-height:120px;resize:none;font-family:inherit;line-height:1.6;}
+
+/* Tags */
+.tag{display:inline-flex;align-items:center;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;}
+.tag-primary{background:rgba(229,57,53,0.15);color:var(--primary);}
+.tag-accent{background:rgba(0,200,83,0.15);color:var(--accent);}
+.tag-warning{background:rgba(255,179,0,0.15);color:var(--warning);}
+
+/* ========== PAGE 1: HOME / CALENDAR ========== */
+.home-header{padding:20px 20px 12px;display:flex;justify-content:space-between;align-items:center;}
+.home-brand{display:flex;align-items:center;gap:10px;}
+.home-logo{width:36px;height:36px;background:linear-gradient(135deg,var(--primary),#FF6F60);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;}
+.home-title{font-size:20px;font-weight:700;}
+.home-actions{display:flex;gap:10px;}
+.home-icon-btn{width:40px;height:40px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+
+.calendar-section{padding:0 16px 16px;}
+.calendar-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.calendar-month{font-size:18px;font-weight:700;}
+.calendar-arrow{width:32px;height:32px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;}
+.calendar-day-header{font-size:12px;color:var(--text-muted);padding:8px 0;font-weight:500;}
+.calendar-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:12px;cursor:pointer;position:relative;transition:all 0.2s;font-size:14px;}
+.calendar-day:hover{background:var(--surface-light);}
+.calendar-day.today{background:var(--surface);border:1.5px solid var(--primary);}
+.calendar-day.today .day-num{color:var(--primary);font-weight:700;}
+.calendar-day.has-workout::after{content:'';position:absolute;bottom:4px;width:4px;height:4px;border-radius:50%;background:var(--primary);}
+.calendar-day.completed::after{background:var(--accent);width:6px;height:6px;bottom:3px;}
+.calendar-day.rest{color:var(--text-muted);}
+.calendar-day.rest .day-label{font-size:10px;}
+.day-num{font-size:14px;font-weight:500;line-height:1;}
+.day-label{font-size:9px;color:var(--text-muted);margin-top:2px;}
+
+.today-card{background:linear-gradient(135deg,rgba(229,57,53,0.2),rgba(229,57,53,0.05));border:1px solid rgba(229,57,53,0.3);border-radius:var(--radius);padding:18px 20px;margin:0 16px 16px;}
+.today-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.today-dot{width:10px;height:10px;border-radius:50%;background:var(--primary);animation:pulse 2s infinite;}
+.today-title{font-size:17px;font-weight:700;}
+.today-focus{font-size:14px;color:var(--text-secondary);margin-bottom:12px;}
+.today-meta{display:flex;gap:16px;font-size:13px;color:var(--text-muted);margin-bottom:14px;}
+.today-meta span{display:flex;align-items:center;gap:4px;}
+.today-actions{display:flex;gap:10px;}
+.today-actions .btn{flex:1;padding:12px;font-size:14px;}
+
+.progress-section{padding:0 16px 20px;}
+.progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.progress-title{font-size:15px;font-weight:600;}
+.progress-ratio{font-size:13px;color:var(--text-secondary);}
+.progress-bar{height:8px;background:var(--surface);border-radius:4px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--primary),#FF6F60);border-radius:4px;width:66%;transition:width 0.6s ease;}
+.progress-sub{display:flex;justify-content:space-between;margin-top:6px;font-size:12px;color:var(--text-muted);}
+.streak{display:flex;align-items:center;gap:6px;margin-top:4px;}
+.streak-num{color:var(--warning);font-weight:700;}
+
+/* ========== PAGE 2: CREATE PLAN STEP 1 ========== */
+.stepper{display:flex;align-items:center;gap:8px;padding:12px 20px 20px;}
+.step{display:flex;align-items:center;gap:6px;}
+.step-circle{width:28px;height:28px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--text-muted);border:2px solid var(--border);}
+.step.active .step-circle{background:var(--primary);border-color:var(--primary);color:#fff;}
+.step.completed .step-circle{background:var(--accent);border-color:var(--accent);color:#fff;}
+.step-label{font-size:12px;color:var(--text-muted);}
+.step.active .step-label{color:var(--primary);font-weight:600;}
+.step-line{flex:1;height:2px;background:var(--border);border-radius:1px;}
+.step-line.completed{background:var(--accent);}
+
+.form-section{padding:0 20px 20px;animation:fadeIn 0.3s ease;}
+.form-group{margin-bottom:20px;}
+.form-label{display:block;font-size:14px;font-weight:600;margin-bottom:8px;color:var(--text-secondary);}
+.form-hint{font-size:12px;color:var(--text-muted);margin-top:6px;}
+
+.split-options{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.split-option{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:14px;text-align:center;cursor:pointer;transition:all 0.2s;}
+.split-option:hover{border-color:var(--primary);}
+.split-option.selected{border-color:var(--primary);background:rgba(229,57,53,0.1);}
+.split-option .split-name{font-size:15px;font-weight:700;margin-bottom:4px;}
+.split-option .split-desc{font-size:11px;color:var(--text-muted);}
+
+.week-selector{display:flex;gap:6px;}
+.week-btn{flex:1;padding:12px;border-radius:var(--radius-sm);background:var(--surface);border:1.5px solid var(--border);color:var(--text);font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+.week-btn:hover{border-color:var(--primary);}
+.week-btn.selected{border-color:var(--primary);background:rgba(229,57,53,0.1);color:var(--primary);}
+
+.nav-actions{display:flex;gap:12px;padding:20px;position:sticky;bottom:0;background:linear-gradient(0deg,var(--bg),transparent);}
+.nav-actions .btn{flex:1;}
+.nav-actions .btn-outline{flex:0.4;}
+
+/* ========== PAGE 3: CREATE PLAN STEP 3 ========== */
+.exercise-search{position:relative;padding:0 16px 12px;}
+.exercise-search .input{padding-left:40px;}
+.search-icon{position:absolute;left:28px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none;}
+
+.exercise-list{max-height:220px;overflow-y:auto;margin:0 16px 12px;}
+.exercise-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface);border-radius:var(--radius-sm);margin-bottom:6px;cursor:pointer;transition:all 0.2s;}
+.exercise-item:hover{background:var(--surface-light);}
+.exercise-icon{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--surface-light),var(--surface));display:flex;align-items:center;justify-content:center;font-size:18px;}
+.exercise-info{flex:1;}
+.exercise-name{font-size:15px;font-weight:600;}
+.exercise-detail{font-size:12px;color:var(--text-muted);}
+.exercise-add{width:32px;height:32px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;transition:all 0.2s;}
+.exercise-add:hover{transform:scale(1.1);}
+
+.selected-exercises{margin:0 16px;}
+.selected-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.selected-count{font-size:14px;color:var(--text-secondary);}
+
+.exercise-config{background:var(--surface);border-radius:var(--radius);padding:14px;margin-bottom:10px;border:1px solid var(--border);}
+.exercise-config-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.exercise-config-name{font-size:15px;font-weight:700;}
+.exercise-config-actions{display:flex;gap:6px;}
+.config-icon{width:28px;height:28px;border-radius:6px;background:var(--surface-light);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;}
+
+.config-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;}
+.config-field{display:flex;flex-direction:column;gap:4px;}
+.config-field label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;}
+.config-field .input{padding:10px 12px;font-size:15px;font-weight:700;text-align:center;}
+
+.config-rest{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.config-rest label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;}
+.rest-chip{display:inline-flex;align-items:center;padding:6px 12px;border-radius:20px;background:var(--surface-light);border:1.5px solid var(--border);font-size:13px;cursor:pointer;transition:all 0.2s;}
+.rest-chip:hover,.rest-chip.selected{border-color:var(--primary);background:rgba(229,57,53,0.1);color:var(--primary);}
+
+/* ========== PAGE 4: AI IMPORT ========== */
+.ai-header{text-align:center;padding:24px 20px 16px;}
+.ai-icon{width:60px;height:60px;border-radius:20px;background:linear-gradient(135deg,var(--primary),#FF6F60);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:28px;}
+.ai-title{font-size:22px;font-weight:700;margin-bottom:6px;}
+.ai-desc{font-size:14px;color:var(--text-secondary);max-width:300px;margin:0 auto;}
+
+.ai-input-area{padding:0 16px 16px;}
+.ai-textarea{background:var(--surface);border-radius:var(--radius);padding:16px;min-height:180px;}
+.ai-textarea textarea{width:100%;background:transparent;border:none;color:var(--text);font-size:15px;line-height:1.7;resize:none;outline:none;font-family:inherit;}
+.ai-textarea textarea::placeholder{color:var(--text-muted);}
+
+.example-chips{display:flex;flex-wrap:wrap;gap:8px;padding:0 16px 16px;}
+.example-chip{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:8px 14px;font-size:13px;color:var(--text-secondary);cursor:pointer;transition:all 0.2s;}
+.example-chip:hover{border-color:var(--primary);color:var(--text);}
+
+.ai-actions{padding:0 16px 16px;}
+.ai-actions .btn{padding:14px;}
+
+.preview-section{display:none;padding:0 16px;}
+.preview-section.show{display:block;animation:fadeIn 0.3s ease;}
+.preview-header{font-size:16px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.preview-header .tag{margin-left:auto;}
+
+.preview-layout{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.preview-panel{background:var(--surface);border-radius:var(--radius);padding:14px;}
+.preview-panel-title{font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;}
+.preview-text{font-size:13px;color:var(--text-secondary);line-height:1.8;white-space:pre-wrap;}
+.preview-result{font-size:13px;line-height:1.8;}
+.preview-result .result-day{font-weight:700;color:var(--primary);margin-top:8px;}
+.preview-result .result-exercise{display:flex;gap:6px;margin-left:8px;color:var(--text-secondary);}
+.preview-result .result-exercise .ex-name{color:var(--text);font-weight:500;}
+.preview-result .unrecognized{color:var(--warning);}
+
+/* ========== PAGE 5: WORKOUT ========== */
+.workout-header{background:linear-gradient(180deg,rgba(229,57,53,0.15),transparent);padding:16px 20px;}
+.workout-date{font-size:14px;color:var(--text-secondary);margin-bottom:4px;}
+.workout-focus{font-size:20px;font-weight:700;margin-bottom:10px;}
+.workout-stats{display:flex;gap:20px;font-size:13px;color:var(--text-muted);}
+.workout-stats span{display:flex;align-items:center;gap:4px;}
+
+.timer-bar{position:sticky;top:0;z-index:40;background:var(--bg);padding:8px 16px;display:none;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+.timer-bar.active{display:flex;animation:fadeIn 0.2s ease;}
+.timer-display{font-family:'Roboto Mono',monospace;font-size:22px;font-weight:700;color:var(--warning);animation:timerPulse 1s infinite;}
+.timer-label{font-size:12px;color:var(--text-muted);flex:1;}
+.timer-btn{padding:6px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border);color:var(--text);font-size:12px;cursor:pointer;}
+
+.exercise-block{margin:0 16px 14px;background:var(--surface);border-radius:var(--radius);overflow:hidden;}
+.exercise-block-header{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);}
+.exercise-block-title{font-size:16px;font-weight:700;}
+.exercise-block-sub{font-size:12px;color:var(--text-muted);margin-top:2px;}
+.exercise-block-actions{display:flex;gap:8px;}
+.exercise-block-action{padding:6px 10px;border-radius:6px;background:var(--surface-light);font-size:12px;color:var(--text-secondary);cursor:pointer;border:none;}
+
+.sets-container{padding:12px 16px;}
+.set-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:10px 12px;background:var(--surface-light);border-radius:var(--radius-sm);transition:all 0.2s;}
+.set-row:hover{background:rgba(255,255,255,0.05);}
+.set-checkbox{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;flex-shrink:0;}
+.set-checkbox.checked{background:var(--accent);border-color:var(--accent);animation:checkPop 0.3s ease;}
+.set-checkbox.checked::after{content:"✓";color:#fff;font-size:13px;font-weight:700;}
+.set-num{font-family:'Roboto Mono',monospace;font-size:13px;color:var(--text-muted);width:36px;flex-shrink:0;}
+.set-inputs{display:flex;gap:8px;flex:1;}
+.set-input-group{display:flex;align-items:center;background:var(--bg);border-radius:8px;padding:8px 10px;gap:4px;flex:1;}
+.set-input-group input{background:transparent;border:none;color:var(--text);font-size:15px;font-weight:700;width:50px;text-align:center;outline:none;font-family:'Roboto Mono',monospace;}
+.set-input-group .unit{font-size:12px;color:var(--text-muted);}
+.set-timer{width:36px;height:36px;border-radius:50%;background:var(--surface-light);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:14px;}
+.set-timer.running{background:var(--warning);color:var(--bg);animation:timerPulse 1s infinite;}
+
+.last-session{margin:4px 16px 14px;padding:10px 14px;background:rgba(0,200,83,0.08);border-radius:var(--radius-sm);border-left:3px solid var(--accent);font-size:13px;color:var(--text-secondary);}
+.last-session strong{color:var(--accent);}
+
+.superset-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:4px;background:rgba(229,57,53,0.15);color:var(--primary);font-size:11px;font-weight:600;margin-bottom:8px;}
+
+.finish-section{padding:20px 16px 30px;}
+.finish-btn{background:linear-gradient(135deg,var(--primary),#FF6F60);font-size:18px;padding:16px;}
+.finish-progress{font-size:13px;color:var(--text-muted);text-align:center;margin-top:8px;}
+
+/* ========== PAGE 6: SUMMARY ========== */
+.summary-hero{text-align:center;padding:30px 20px 20px;}
+.summary-hero-icon{font-size:48px;margin-bottom:10px;animation:float 3s ease infinite;}
+.summary-hero h2{font-size:24px;font-weight:800;margin-bottom:6px;}
+.summary-hero p{color:var(--text-secondary);font-size:15px;}
+
+.summary-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px 16px;}
+.stat-card{background:var(--surface);border-radius:var(--radius);padding:16px;text-align:center;}
+.stat-value{font-family:'Roboto Mono',monospace;font-size:28px;font-weight:700;color:var(--primary);margin-bottom:4px;}
+.stat-label{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;}
+
+.comparison-section{padding:0 16px 16px;}
+.comparison-title{font-size:16px;font-weight:700;margin-bottom:10px;}
+.comparison-list{display:flex;flex-direction:column;gap:8px;}
+.comparison-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface);border-radius:var(--radius-sm);}
+.comparison-name{flex:1;font-weight:600;}
+.comparison-change{font-family:'Roboto Mono',monospace;font-weight:700;}
+.comparison-change.up{color:var(--accent);}
+.comparison-change.down{color:var(--error);}
+.comparison-change.same{color:var(--text-muted);}
+
+.pr-section{padding:0 16px 20px;}
+.pr-card{background:linear-gradient(135deg,rgba(255,179,0,0.15),rgba(255,179,0,0.05));border:1px solid rgba(255,179,0,0.3);border-radius:var(--radius);padding:16px;display:flex;align-items:center;gap:14px;}
+.pr-icon{font-size:32px;}
+.pr-info{flex:1;}
+.pr-title{font-size:15px;font-weight:700;color:var(--warning);margin-bottom:2px;}
+.pr-detail{font-size:13px;color:var(--text-secondary);}
+
+.summary-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:0 16px 20px;}
+.summary-action{background:var(--surface);border-radius:var(--radius-sm);padding:14px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;transition:all 0.2s;border:1px solid var(--border);}
+.summary-action:hover{border-color:var(--primary);}
+.summary-action-icon{font-size:20px;}
+.summary-action-label{font-size:12px;color:var(--text-secondary);}
+
+/* ========== PAGE 7: DASHBOARD ========== */
+.dash-overview{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px;}
+.overview-card{background:var(--surface);border-radius:var(--radius);padding:16px;position:relative;overflow:hidden;}
+.overview-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--primary);border-radius:var(--radius) var(--radius) 0 0;}
+.overview-card.green::before{background:var(--accent);}
+.overview-card.yellow::before{background:var(--warning);}
+.overview-value{font-family:'Roboto Mono',monospace;font-size:28px;font-weight:700;margin-bottom:4px;}
+.overview-label{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;}
+.overview-change{font-size:12px;color:var(--accent);margin-top:4px;font-weight:600;}
+
+.chart-section{padding:0 16px 16px;}
+.chart-card{background:var(--surface);border-radius:var(--radius);padding:16px;}
+.chart-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.chart-title{font-size:16px;font-weight:700;}
+.chart-period{display:flex;gap:4px;}
+.period-btn{padding:4px 10px;border-radius:6px;font-size:12px;background:transparent;border:none;color:var(--text-muted);cursor:pointer;}
+.period-btn.active{background:var(--primary);color:#fff;}
+
+/* CSS-only line chart */
+.line-chart{height:160px;position:relative;padding:10px 0;}
+.line-chart-svg{width:100%;height:100%;}
+.chart-point{fill:var(--primary);r:4;transition:all 0.2s;}
+.chart-point:hover{r:6;}
+.chart-line{fill:none;stroke:var(--primary);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.chart-area{fill:rgba(229,57,53,0.1);stroke:none;}
+.chart-grid{stroke:var(--border);stroke-width:0.5;stroke-dasharray:4,4;}
+.chart-label{font-size:10px;fill:var(--text-muted);text-anchor:middle;}
+.chart-y-label{font-size:10px;fill:var(--text-muted);text-anchor:end;}
+
+/* CSS-only pie chart */
+.pie-chart{width:140px;height:140px;border-radius:50%;position:relative;margin:0 auto 16px;}
+.pie-legend{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;}
+.pie-legend-item{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-secondary);}
+.pie-legend-dot{width:8px;height:8px;border-radius:50%;}
+
+.heatmap-section{padding:0 16px 20px;}
+.heatmap-card{background:var(--surface);border-radius:var(--radius);padding:16px;}
+.heatmap-title{font-size:16px;font-weight:700;margin-bottom:14px;}
+.heatmap-grid{display:flex;gap:3px;flex-wrap:wrap;}
+.heatmap-week{display:flex;flex-direction:column;gap:3px;}
+.heatmap-day{width:14px;height:14px;border-radius:3px;background:var(--surface-light);transition:all 0.2s;cursor:pointer;}
+.heatmap-day:hover{transform:scale(1.2);}
+.heatmap-day.l1{background:rgba(229,57,53,0.15);}
+.heatmap-day.l2{background:rgba(229,57,53,0.3);}
+.heatmap-day.l3{background:rgba(229,57,53,0.5);}
+.heatmap-day.l4{background:rgba(229,57,53,0.7);}
+.heatmap-day.l5{background:var(--primary);}
+.heatmap-legend{display:flex;align-items:center;gap:6px;margin-top:12px;justify-content:flex-end;}
+.heatmap-legend-label{font-size:11px;color:var(--text-muted);}
+
+/* Toast */
+.toast{position:fixed;top:60px;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--surface);color:var(--text);padding:12px 20px;border-radius:var(--radius-sm);font-size:14px;box-shadow:var(--shadow);border:1px solid var(--border);z-index:200;opacity:0;transition:all 0.3s ease;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.success{border-color:var(--accent);}
+.toast.success::before{content:"✓ ";color:var(--accent);font-weight:700;}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:150;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);}
+.modal-overlay.show{display:flex;}
+.modal-content{background:var(--bg);border-radius:var(--radius) var(--radius) 0 0;padding:20px;width:100%;max-width:390px;animation:slideIn 0.3s ease;max-height:70vh;overflow-y:auto;}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:16px;}
+.modal-actions{display:flex;gap:10px;margin-top:20px;}
+
+/* Scrollbar for phone */
+.phone ::-webkit-scrollbar{width:0;}
+
+/* Responsive */
+@media(max-width:420px){.phone{width:100vw;height:100vh;border-radius:0;box-shadow:none;}}
+</style>
+</head>
+<body>
+
+<div class="phone">
+<div class="screen">
+
+<!-- ==================== PAGE 1: HOME ==================== -->
+<div class="page active" id="page-home">
+<div class="home-header">
+<div class="home-brand">
+<div class="home-logo">H</div>
+<div>
+<div class="home-title">HYROS Fit</div>
+</div>
+</div>
+<div class="home-actions">
+<div class="home-icon-btn" onclick="showToast('通知列表')" title="通知">🔔</div>
+<div class="home-icon-btn" onclick="showToast('设置页面')" title="设置">⚙️</div>
+</div>
+</div>
+
+<div class="calendar-section">
+<div class="calendar-nav">
+<div class="calendar-arrow" onclick="changeMonth(-1)">◀</div>
+<div class="calendar-month" id="calendar-month">2026年5月</div>
+<div class="calendar-arrow" onclick="changeMonth(1)">▶</div>
+</div>
+<div class="calendar-grid" id="calendar-grid">
+<div class="calendar-day-header">日</div><div class="calendar-day-header">一</div><div class="calendar-day-header">二</div><div class="calendar-day-header">三</div><div class="calendar-day-header">四</div><div class="calendar-day-header">五</div><div class="calendar-day-header">六</div>
+</div>
+</div>
+
+<div class="today-card">
+<div class="today-header">
+<div class="today-dot"></div>
+<div class="today-title">今日训练 · 周一</div>
+</div>
+<div class="today-focus">胸 + 三头 + 腹 + 有氧 | 高碳日</div>
+<div class="today-meta">
+<span>⏱ 预计75min</span>
+<span>🔥 8个动作</span>
+</div>
+<div class="today-actions">
+<button class="btn" onclick="navigateTo('page-workout')">开始训练</button>
+<button class="btn btn-outline" onclick="showToast('查看计划详情')">查看</button>
+</div>
+</div>
+
+<div class="progress-section">
+<div class="progress-header">
+<div class="progress-title">本周进度</div>
+<div class="progress-ratio">4 / 6 次</div>
+</div>
+<div class="progress-bar"><div class="progress-fill"></div></div>
+<div class="progress-sub">
+<div>目标: 每周6练</div>
+<div class="streak">连续打卡 <span class="streak-num">12天 🔥</span></div>
+</div>
+</div>
+
+<div style="padding:0 16px 20px;">
+<div style="font-size:15px;font-weight:700;margin-bottom:10px;">进行中的计划</div>
+<div class="card" style="display:flex;align-items:center;gap:12px;margin:0 0 10px 0;" onclick="showToast('计划详情页')">
+<div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--primary),#FF6F60);display:flex;align-items:center;justify-content:center;font-size:18px;">💪</div>
+<div style="flex:1;">
+<div style="font-weight:700;">HYROS 增肌计划</div>
+<div style="font-size:12px;color:var(--text-muted);margin-top:2px;">第3周 · 已完成 12/24 次</div>
+</div>
+<div style="font-size:13px;color:var(--accent);font-weight:600;">50%</div>
+</div>
+</div>
+
+<div style="padding:0 16px 30px;">
+<button class="btn btn-outline" style="margin-bottom:10px;" onclick="navigateTo('page-create-1')">+ 新建训练计划</button>
+<button class="btn btn-outline" style="border-color:var(--primary);color:var(--primary);" onclick="navigateTo('page-ai-import')">🤖 AI导入计划</button>
+</div>
+</div>
+
+<!-- ==================== PAGE 2: CREATE STEP 1 ==================== -->
+<div class="page" id="page-create-1">
+<div class="header">
+<div class="header-back" onclick="navigateTo('page-home')">←</div>
+<div><h1 style="font-size:18px;">新建计划</h1></div>
+<div style="width:36px;"></div>
+</div>
+
+<div class="stepper">
+<div class="step active"><div class="step-circle">1</div><div class="step-label">基础</div></div>
+<div class="step-line"></div>
+<div class="step"><div class="step-circle">2</div><div class="step-label">训练日</div></div>
+<div class="step-line"></div>
+<div class="step"><div class="step-circle">3</div><div class="step-label">动作</div></div>
+<div class="step-line"></div>
+<div class="step"><div class="step-circle">4</div><div class="step-label">预览</div></div>
+</div>
+
+<div class="form-section">
+<div class="form-group">
+<label class="form-label">计划名称</label>
+<input type="text" class="input" placeholder="我的训练计划" value="HYROS 增肌计划" id="plan-name">
+</div>
+
+<div class="form-group">
+<label class="form-label">训练周期</label>
+<div class="week-selector">
+<button class="week-btn">4周</button>
+<button class="week-btn selected">8周</button>
+<button class="week-btn">12周</button>
+<button class="week-btn">自定义</button>
+</div>
+</div>
+
+<div class="form-group">
+<label class="form-label">训练分化</label>
+<div class="split-options">
+<div class="split-option" onclick="selectSplit(this)">
+<div class="split-name">3分化</div>
+<div class="split-desc">推拉腿</div>
+</div>
+<div class="split-option selected" onclick="selectSplit(this)">
+<div class="split-name">4分化</div>
+<div class="split-desc">上下肢</div>
+</div>
+<div class="split-option" onclick="selectSplit(this)">
+<div class="split-name">5分化</div>
+<div class="split-desc">胸背肩腿手</div>
+</div>
+<div class="split-option" onclick="selectSplit(this)">
+<div class="split-name">6分化</div>
+<div class="split-desc">PPLx2</div>
+</div>
+<div class="split-option" onclick="selectSplit(this)">
+<div class="split-name">上下肢</div>
+<div class="split-desc">4天循环</div>
+</div>
+<div class="split-option" onclick="selectSplit(this)">
+<div class="split-name">全身</div>
+<div class="split-desc">3天全身</div>
+</div>
+</div>
+<p class="form-hint">系统将自动推荐每周训练天数，您可在下一步调整。</p>
+</div>
+</div>
+
+<div class="nav-actions">
+<button class="btn btn-outline btn-sm" onclick="navigateTo('page-home')">取消</button>
+<button class="btn" onclick="navigateTo('page-create-3')">下一步 →</button>
+</div>
+</div>
+
+<!-- ==================== PAGE 3: CREATE STEP 3 ==================== -->
+<div class="page" id="page-create-3">
+<div class="header">
+<div class="header-back" onclick="navigateTo('page-create-1')">←</div>
+<div><h1 style="font-size:18px;">添加动作</h1></div>
+<div style="width:36px;"></div>
+</div>
+
+<div class="stepper">
+<div class="step completed"><div class="step-circle">✓</div></div>
+<div class="step-line completed"></div>
+<div class="step completed"><div class="step-circle">✓</div></div>
+<div class="step-line completed"></div>
+<div class="step active"><div class="step-circle">3</div></div>
+<div class="step-line"></div>
+<div class="step"><div class="step-circle">4</div></div>
+</div>
+
+<div class="exercise-search">
+<span class="search-icon">🔍</span>
+<input type="text" class="input" placeholder="搜索动作 (如: 卧推, 深蹲...)" id="ex-search" oninput="filterExercises(this.value)">
+</div>
+
+<div style="display:flex;gap:6px;padding:0 16px 10px;flex-wrap:wrap;" id="category-filters">
+<button class="tag tag-primary" style="cursor:pointer;border:none;" onclick="filterCategory('all')">全部</button>
+<button class="tag" style="background:var(--surface);color:var(--text-secondary);cursor:pointer;border:none;" onclick="filterCategory('胸部')">胸部</button>
+<button class="tag" style="background:var(--surface);color:var(--text-secondary);cursor:pointer;border:none;" onclick="filterCategory('背部')">背部</button>
+<button class="tag" style="background:var(--surface);color:var(--text-secondary);cursor:pointer;border:none;" onclick="filterCategory('腿部')">腿部</button>
+<button class="tag" style="background:var(--surface);color:var(--text-secondary);cursor:pointer;border:none;" onclick="filterCategory('肩部')">肩部</button>
+</div>
+
+<div class="exercise-list" id="exercise-list">
+<div class="exercise-item" data-name="平板杠铃卧推" data-cat="胸部" onclick="addExercise(this)">
+<div class="exercise-icon">🏋️</div>
+<div class="exercise-info">
+<div class="exercise-name">平板杠铃卧推</div>
+<div class="exercise-detail">杠铃 · 胸部 · 中级</div>
+</div>
+<div class="exercise-add">+</div>
+</div>
+<div class="exercise-item" data-name="上斜哑铃卧推" data-cat="胸部" onclick="addExercise(this)">
+<div class="exercise-icon">🏋️</div>
+<div class="exercise-info">
+<div class="exercise-name">上斜哑铃卧推</div>
+<div class="exercise-detail">哑铃 · 上胸 · 中级</div>
+</div>
+<div class="exercise-add">+</div>
+</div>
+<div class="exercise-item" data-name="双杠臂屈伸" data-cat="胸部" onclick="addExercise(this)">
+<div class="exercise-icon">🤸</div>
+<div class="exercise-info">
+<div class="exercise-name">双杠臂屈伸</div>
+<div class="exercise-detail">自重 · 下胸 · 中级</div>
+</div>
+<div class="exercise-add">+</div>
+</div>
+<div class="exercise-item" data-name="绳索夹胸" data-cat="胸部" onclick="addExercise(this)">
+<div class="exercise-icon">🔗</div>
+<div class="exercise-info">
+<div class="exercise-name">绳索夹胸</div>
+<div class="exercise-detail">绳索 · 胸部 · 初级</div>
+</div>
+<div class="exercise-add">+</div>
+</div>
+<div class="exercise-item" data-name="杠铃深蹲" data-cat="腿部" onclick="addExercise(this)">
+<div class="exercise-icon">🦵</div>
+<div class="exercise-info">
+<div class="exercise-name">杠铃深蹲</div>
+<div class="exercise-detail">杠铃 · 腿部 · 高级</div>
+</div>
+<div class="exercise-add">+</div>
+</div>
+<div class="exercise-item" data-name="硬拉" data-cat="背部" onclick="addExercise(this)">
+<div class="exercise-icon">🏋️</div>
+<div class="exercise-info">
+<div class="exercise-name">硬拉</div>
+<div class="exercise-detail">杠铃 · 背部 · 高级</div>
+</div>
+<div class="exercise-add">+</div>
+</div>
+</div>
+
+<div class="selected-exercises">
+<div class="selected-header">
+<div class="selected-count" id="selected-count">已添加 0 个动作</div>
+<div style="font-size:12px;color:var(--text-muted);">长按拖拽排序</div>
+</div>
+<div id="selected-list"></div>
+</div>
+
+<div class="nav-actions">
+<button class="btn btn-outline btn-sm" onclick="navigateTo('page-create-1')">上一步</button>
+<button class="btn" onclick="showToast('预览计划并保存');setTimeout(()=>navigateTo('page-home'),800);">预览 & 保存</button>
+</div>
+</div>
+
+<!-- ==================== PAGE 4: AI IMPORT ==================== -->
+<div class="page" id="page-ai-import">
+<div class="header">
+<div class="header-back" onclick="navigateTo('page-home')">←</div>
+<div><h1 style="font-size:18px;">AI导入</h1></div>
+<div style="width:36px;"></div>
+</div>
+
+<div class="ai-header">
+<div class="ai-icon">🤖</div>
+<div class="ai-title">AI智能导入</div>
+<div class="ai-desc">粘贴你的训练计划文本，AI自动解析为结构化计划</div>
+</div>
+
+<div class="ai-input-area">
+<div class="ai-textarea">
+<textarea placeholder="粘贴你的训练计划文本...
+
+例如：
+周一 胸+三头
+平板杠铃卧推 4组x8-10次 休息90s
+上斜哑铃卧推 4组x10-12次 休息75s
+双杠臂屈伸 3组x10-12次
+
+周二 背+二头
+..." id="ai-text">周一 胸+三头+腹+有氧
+平板杠铃卧推 4组x8-10次 休息90s
+上斜哑铃卧推 4组x10-12次 休息75s
+双杠臂屈伸 3组x10-12次
+绳索夹胸 3组x12-15次 休息60s
+
+周三 背+二头
+引体向上 4组x8-10次 休息90s
+杠铃划船 4组x8-10次 休息90s
+高位下拉 3组x10-12次 休息75s
+杠铃弯举 3组x10-12次 休息60s</textarea>
+</div>
+</div>
+
+<div class="example-chips">
+<div class="example-chip" onclick="fillExample('ppl')">📋 PPL 6分化示例</div>
+<div class="example-chip" onclick="fillExample('upperlower')">📋 上下肢 4分化</div>
+<div class="example-chip" onclick="fillExample('5day')">📋 5分化示例</div>
+</div>
+
+<div class="ai-actions">
+<button class="btn" onclick="parseAI()">开始识别</button>
+</div>
+
+<div class="preview-section" id="preview-section">
+<div class="preview-header">
+<span>识别结果</span>
+<span class="tag tag-accent" id="preview-accuracy">准确率 92%</span>
+</div>
+<div class="preview-layout">
+<div class="preview-panel">
+<div class="preview-panel-title">原始文本</div>
+<div class="preview-text" id="preview-original"></div>
+</div>
+<div class="preview-panel">
+<div class="preview-panel-title">解析结果</div>
+<div class="preview-result" id="preview-result"></div>
+</div>
+</div>
+<div style="display:flex;gap:10px;margin-top:14px;">
+<button class="btn btn-outline" style="flex:1;" onclick="showToast('进入编辑修正')">编辑修正</button>
+<button class="btn" style="flex:1;" onclick="showToast('计划已导入！');setTimeout(()=>navigateTo('page-home'),600);">确认导入</button>
+</div>
+</div>
+</div>
+
+<!-- ==================== PAGE 5: WORKOUT ==================== -->
+<div class="page" id="page-workout">
+<div class="timer-bar" id="timer-bar">
+<div class="timer-display" id="timer-display">01:30</div>
+<div class="timer-label">组间休息</div>
+<button class="timer-btn" onclick="toggleTimer()">暂停</button>
+<button class="timer-btn" onclick="skipTimer()">跳过</button>
+</div>
+
+<div class="workout-header">
+<div class="workout-date">2026年5月7日 · 周一</div>
+<div class="workout-focus">胸 + 三头 + 腹 + 有氧</div>
+<div class="workout-stats">
+<span>⏱ 已用 32min</span>
+<span>📊 容量 2,450kg</span>
+</div>
+</div>
+
+<div style="padding:0 16px 10px;display:flex;gap:8px;flex-wrap:wrap;">
+<span class="tag tag-primary">高碳日</span>
+<span class="tag" style="background:var(--surface);color:var(--text-secondary);">胸部专注</span>
+</div>
+
+<div class="exercise-block">
+<div class="exercise-block-header">
+<div>
+<div class="exercise-block-title">1. 平板杠铃卧推</div>
+<div class="exercise-block-sub">目标: 4组 x 8-10次 · 休息90s</div>
+</div>
+<div class="exercise-block-actions">
+<button class="exercise-block-action" onclick="showToast('添加备注')">笔记</button>
+<button class="exercise-block-action" onclick="showToast('替换动作')">替换</button>
+</div>
+</div>
+<div class="sets-container">
+<div class="set-row">
+<div class="set-checkbox checked" onclick="toggleSet(this)"></div>
+<div class="set-num">组1</div>
+<div class="set-inputs">
+<div class="set-input-group"><input type="number" value="80"><span class="unit">kg</span></div>
+<div class="set-input-group"><input type="number" value="8"><span class="unit">次</span></div>
+</div>
+<div class="set-timer" onclick="startRest(this,90)">⏱</div>
+</div>
+<div class="set-row">
+<div class="set-checkbox checked" onclick="toggleSet(this)"></div>
+<div class="set-num">组2</div>
+<div class="set-inputs">
+<div class="set-input-group"><input type="number" value="80"><span class="unit">kg</span></div>
+<div class="set-input-group"><input type="number" value="9"><span class="unit">次</span></div>
+</div>
+<div class="set-timer" onclick="startRest(this,90)">⏱</div>
+</div>
+<div class="set-row">
+<div class="set-checkbox" onclick="toggleSet(this)"></div>
+<div class="set-num">组3</div>
+<div class="set-inputs">
+<div class="set-input-group"><input type="number" placeholder="80"><span class="unit">kg</span></div>
+<div class="set-input-group"><input type="number" placeholder="10"><span class="unit">次</span></div>
+</div>
+<div class="set-timer" onclick="startRest(this,90)">⏱</div>
+</div>
+<div class="set-row">
+<div class="set-checkbox" onclick="toggleSet(this)"></div>
+<div class="set-num">组4</div>
+<div class="set-inputs">
+<div class="set-input-group"><input type="number" placeholder="80"><span class="unit">kg</span></div>
+<div class="set-input-group"><input type="number" placeholder="10"><span class="unit">次</span></div>
+</div>
+<div class="set-timer" onclick="startRest(this,90)">⏱</div>
+</div>
+<div style="display:flex;gap:8px;margin-top:8px;">
+<div style="font-size:12px;color:var(--text-muted);">RPE:</div>
+<button style="padding:4px 8px;border-radius:4px;background:var(--surface-light);border:1px solid var(--border);color:var(--text);font-size:12px;cursor:pointer;" onclick="selectRPE(this)">6</button>
+<button style="padding:4px 8px;border-radius:4px;background:var(--surface-light);border:1px solid var(--border);color:var(--text);font-size:12px;cursor:pointer;" onclick="selectRPE(this)">7</button>
+<button style="padding:4px 8px;border-radius:4px;background:var(--primary);border:none;color:#fff;font-size:12px;cursor:pointer;" onclick="selectRPE(this)">8</button>
+<button style="padding:4px 8px;border-radius:4px;background:var(--surface-light);border:1px solid var(--border);color:var(--text);font-size:12px;cursor:pointer;" onclick="selectRPE(this)">9</button>
+<button style="padding:4px 8px;border-radius:4px;background:var(--surface-light);border:1px solid var(--border);color:var(--text);font-size:12px;cursor:pointer;" onclick="selectRPE(this)">10</button>
+</div>
+</div>
+</div>
+
+<div class="last-session">
+<strong>上次训练:</strong> 75kg x 8,8,7,7 · 容量 2,250kg
+</div>
+
+<div class="exercise-block">
+<div class="exercise-block-header">
+<div>
+<div style="display:flex;align-items:center;gap:8px;">
+<span class="superset-badge">⚡ 超级组</span>
+</div>
+<div class="exercise-block-title" style="margin-top:6px;">2. 上斜哑铃卧推 → 双杠臂屈伸</div>
+<div class="exercise-block-sub">各3组 x 10-12次 · 休息75s (完成A→B后休息)</div>
+</div>
+<div class="exercise-block-actions">
+<button class="exercise-block-action" onclick="showToast('拆分超级组')">拆分</button>
+</div>
+</div>
+<div class="sets-container">
+<div style="font-weight:600;font-size:14px;margin-bottom:8px;color:var(--text-secondary);">A. 上斜哑铃卧推</div>
+<div class="set-row">
+<div class="set-checkbox" onclick="toggleSet(this)"></div>
+<div class="set-num">组1</div>
+<div class="set-inputs">
+<div class="set-input-group"><input type="number" placeholder="30"><span class="unit">kg</span></div>
+<div class="set-input-group"><input type="number" placeholder="10"><span class="unit">次</span></div>
+</div>
+<div class="set-timer" onclick="startRest(this,75)">⏱</div>
+</div>
+<div class="set-row">
+<div class="set-checkbox" onclick="toggleSet(this)"></div>
+<div class="set-num">组2</div>
+<div class="set-inputs">
+<div class="set-input-group"><input type="number" placeholder="30"><span class="unit">kg</span></div>
+<div class="set-input-group"><input type="number" placeholder="10"><span class="unit">次</span></div>
+</div>
+<div class="set-timer" onclick="startRest(this,75)">⏱</div>
+</div>
+<div style="font-weight:600;font-size:14px;margin:10px 0 8px;color:var(--text-secondary);">B. 双杠臂屈伸</div>
+<div class="set-row">
+<div class="set-checkbox" onclick="toggleSet(this)"></div>
+<div class="set-num">组1</div>
+<div class="set-inputs">
+<div class="set-input-group"><input type="text" value="自重" style="width:50px;font-size:13px;" readonly><span class="unit"></span></div>
+<div class="set-input-group"><input type="number" placeholder="12"><span class="unit">次</span></div>
+</div>
+<div class="set-timer" onclick="startRest(this,75)">⏱</div>
+</div>
+</div>
+</div>
+
+<div class="exercise-block">
+<div class="exercise-block-header">
+<div>
+<div class="exercise-block-title">3. 绳索夹胸</div>
+<div class="exercise-block-sub">目标: 3组 x 12-15次 · 休息60s</div>
+</div>
+<div class="exercise-block-actions">
+<button class="exercise-block-action" onclick="showToast('跳过此动作')">跳过</button>
+</div>
+</div>
+<div class="sets-container">
+<div class="set-row">
+<div class="set-checkbox" onclick="toggleSet(this)"></div>
+<div class="set-num">组1</div>
+<div class="set-inputs">
+<div class="set-input-group"><input type="number" placeholder="15"><span class="unit">kg</span></div>
+<div class="set-input-group"><input type="number" placeholder="12"><span class="unit">次</span></div>
+</div>
+<div class="set-timer" onclick="startRest(this,60)">⏱</div>
+</div>
+<div class="set-row">
+<div class="set-checkbox" onclick="toggleSet(this)"></div>
+<div class="set-num">组2</div>
+<div class="set-inputs">
+<div class="set-input-group"><input type="number" placeholder="15"><span class="unit">kg</span></div>
+<div class="set-input-group"><input type="number" placeholder="12"><span class="unit">次</span></div>
+</div>
+<div class="set-timer" onclick="startRest(this,60)">⏱</div>
+</div>
+<div class="set-row">
+<div class="set-checkbox" onclick="toggleSet(this)"></div>
+<div class="set-num">组3</div>
+<div class="set-inputs">
+<div class="set-input-group"><input type="number" placeholder="15"><span class="unit">kg</span></div>
+<div class="set-input-group"><input type="number" placeholder="12"><span class="unit">次</span></div>
+</div>
+<div class="set-timer" onclick="startRest(this,60)">⏱</div>
+</div>
+</div>
+</div>
+
+<div class="exercise-block">
+<div class="exercise-block-header">
+<div>
+<div class="exercise-block-title">4. 三头下压</div>
+<div class="exercise-block-sub">目标: 3组 x 12-15次 · 休息60s</div>
+</div>
+</div>
+<div class="sets-container">
+<div class="set-row">
+<div class="set-checkbox" onclick="toggleSet(this)"></div>
+<div class="set-num">组1</div>
+<div class="set-inputs">
+<div class="set-input-group"><input type="number" placeholder="25"><span class="unit">kg</span></div>
+<div class="set-input-group"><input type="number" placeholder="12"><span class="unit">次</span></div>
+</div>
+<div class="set-timer" onclick="startRest(this,60)">⏱</div>
+</div>
+<div class="set-row">
+<div class="set-checkbox" onclick="toggleSet(this)"></div>
+<div class="set-num">组2</div>
+<div class="set-inputs">
+<div class="set-input-group"><input type="number" placeholder="25"><span class="unit">kg</span></div>
+<div class="set-input-group"><input type="number" placeholder="12"><span class="unit">次</span></div>
+</div>
+<div class="set-timer" onclick="startRest(this,60)">⏱</div>
+</div>
+<div class="set-row">
+<div class="set-checkbox" onclick="toggleSet(this)"></div>
+<div class="set-num">组3</div>
+<div class="set-inputs">
+<div class="set-input-group"><input type="number" placeholder="25"><span class="unit">kg</span></div>
+<div class="set-input-group"><input type="number" placeholder="12"><span class="unit">次</span></div>
+</div>
+<div class="set-timer" onclick="startRest(this,60)">⏱</div>
+</div>
+</div>
+</div>
+
+<div class="finish-section">
+<button class="btn finish-btn" onclick="navigateTo('page-summary')">完成今日训练 (2/8)</button>
+<div class="finish-progress">已完成 2 个动作 · 剩余 6 个</div>
+</div>
+</div>
+
+<!-- ==================== PAGE 6: SUMMARY ==================== -->
+<div class="page" id="page-summary">
+<div class="header">
+<div class="header-back" onclick="navigateTo('page-home')">←</div>
+<div><h1 style="font-size:18px;">训练总结</h1></div>
+<div style="width:36px;"></div>
+</div>
+
+<div class="summary-hero">
+<div class="summary-hero-icon">🎉</div>
+<h2>训练完成</h2>
+<p>你今天又超越了自己</p>
+</div>
+
+<div class="summary-stats">
+<div class="stat-card">
+<div class="stat-value">68</div>
+<div class="stat-label">时长 (min)</div>
+</div>
+<div class="stat-card">
+<div class="stat-value" style="color:var(--accent);">8,520</div>
+<div class="stat-label">容量 (kg)</div>
+</div>
+<div class="stat-card">
+<div class="stat-value" style="color:var(--warning);">8/8</div>
+<div class="stat-label">动作完成</div>
+</div>
+<div class="stat-card">
+<div class="stat-value" style="color:var(--primary);">28/28</div>
+<div class="stat-label">组数完成</div>
+</div>
+</div>
+
+<div class="comparison-section">
+<div class="comparison-title">与上次对比</div>
+<div class="comparison-list">
+<div class="comparison-item">
+<div class="comparison-name">平板杠铃卧推</div>
+<div class="comparison-change up">+5kg ↑</div>
+</div>
+<div class="comparison-item">
+<div class="comparison-name">杠铃深蹲</div>
+<div class="comparison-change same">持平 →</div>
+</div>
+<div class="comparison-item">
+<div class="comparison-name">硬拉</div>
+<div class="comparison-change up">+2.5kg ↑</div>
+</div>
+<div class="comparison-item">
+<div class="comparison-name">总容量</div>
+<div class="comparison-change up">+12.5% ↑</div>
+</div>
+</div>
+</div>
+
+<div class="pr-section">
+<div class="pr-card">
+<div class="pr-icon">🏆</div>
+<div class="pr-info">
+<div class="pr-title">新个人纪录</div>
+<div class="pr-detail">平板杠铃卧推 80kg x 9次 (估算1RM: 96.8kg)</div>
+</div>
+</div>
+</div>
+
+<div class="summary-actions">
+<div class="summary-action" onclick="showModal('拍照记录')">
+<div class="summary-action-icon">📸</div>
+<div class="summary-action-label">拍照</div>
+</div>
+<div class="summary-action" onclick="showModal('写训练笔记')">
+<div class="summary-action-icon">📝</div>
+<div class="summary-action-label">笔记</div>
+</div>
+<div class="summary-action" onclick="showToast('分享成功')">
+<div class="summary-action-icon">📤</div>
+<div class="summary-action-label">分享</div>
+</div>
+</div>
+
+<div style="padding:0 16px 30px;">
+<button class="btn btn-outline" style="margin-bottom:10px;" onclick="navigateTo('page-home')">返回首页</button>
+<button class="btn" onclick="navigateTo('page-dashboard')">查看数据看板</button>
+</div>
+</div>
+
+<!-- ==================== PAGE 7: DASHBOARD ==================== -->
+<div class="page" id="page-dashboard">
+<div class="header">
+<div class="header-back" onclick="navigateTo('page-home')">←</div>
+<div><h1 style="font-size:18px;">数据看板</h1></div>
+<div style="width:36px;"></div>
+</div>
+
+<div class="dash-overview">
+<div class="overview-card">
+<div class="overview-value" style="color:var(--primary);">18</div>
+<div class="overview-label">本月训练</div>
+<div class="overview-change">+3 vs 上月</div>
+</div>
+<div class="overview-card green">
+<div class="overview-value" style="color:var(--accent);">12</div>
+<div class="overview-label">连续打卡</div>
+<div class="overview-change">🔥 进行中</div>
+</div>
+<div class="overview-card yellow">
+<div class="overview-value" style="color:var(--warning);">46</div>
+<div class="overview-label">总训练天数</div>
+<div class="overview-change">累计</div>
+</div>
+<div class="overview-card">
+<div class="overview-value" style="color:var(--primary);">142K</div>
+<div class="overview-label">总容量(kg)</div>
+<div class="overview-change">+28K 本月</div>
+</div>
+</div>
+
+<div class="chart-section">
+<div class="chart-card">
+<div class="chart-header">
+<div class="chart-title">容量趋势</div>
+<div class="chart-period">
+<button class="period-btn">7天</button>
+<button class="period-btn active">30天</button>
+<button class="period-btn">90天</button>
+</div>
+</div>
+<div class="line-chart">
+<svg class="line-chart-svg" viewBox="0 0 340 140">
+<line class="chart-grid" x1="30" y1="20" x2="330" y2="20"/>
+<line class="chart-grid" x1="30" y1="55" x2="330" y2="55"/>
+<line class="chart-grid" x1="30" y1="90" x2="330" y2="90"/>
+<text class="chart-y-label" x="28" y="24">10K</text>
+<text class="chart-y-label" x="28" y="59">6K</text>
+<text class="chart-y-label" x="28" y="94">3K</text>
+<path class="chart-area" d="M30,100 L70,85 L110,60 L150,70 L190,45 L230,55 L270,35 L310,30 L330,25 L330,125 L30,125 Z"/>
+<path class="chart-line" d="M30,100 L70,85 L110,60 L150,70 L190,45 L230,55 L270,35 L310,30 L330,25"/>
+<circle class="chart-point" cx="30" cy="100"/>
+<circle class="chart-point" cx="70" cy="85"/>
+<circle class="chart-point" cx="110" cy="60"/>
+<circle class="chart-point" cx="150" cy="70"/>
+<circle class="chart-point" cx="190" cy="45"/>
+<circle class="chart-point" cx="230" cy="55"/>
+<circle class="chart-point" cx="270" cy="35"/>
+<circle class="chart-point" cx="310" cy="30"/>
+<circle class="chart-point" cx="330" cy="25"/>
+<text class="chart-label" x="30" y="138">4/7</text>
+<text class="chart-label" x="110" y="138">4/14</text>
+<text class="chart-label" x="190" y="138">4/21</text>
+<text class="chart-label" x="270" y="138">4/28</text>
+<text class="chart-label" x="330" y="138">5/5</text>
+</svg>
+</div>
+</div>
+</div>
+
+<div class="chart-section">
+<div class="chart-card">
+<div class="chart-header">
+<div class="chart-title">部位分布</div>
+<div class="chart-period">
+<button class="period-btn active">本月</button>
+<button class="period-btn">全部</button>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:20px;padding:10px 0;">
+<svg width="140" height="140" viewBox="0 0 140 140" style="flex-shrink:0;">
+<circle cx="70" cy="70" r="60" fill="none" stroke="var(--surface-light)" stroke-width="20"/>
+<circle cx="70" cy="70" r="60" fill="none" stroke="var(--primary)" stroke-width="20" stroke-dasharray="94 283" stroke-dashoffset="0" transform="rotate(-90 70 70)"/>
+<circle cx="70" cy="70" r="60" fill="none" stroke="#42A5F5" stroke-width="20" stroke-dasharray="75 283" stroke-dashoffset="-94" transform="rotate(-90 70 70)"/>
+<circle cx="70" cy="70" r="60" fill="none" stroke="var(--accent)" stroke-width="20" stroke-dasharray="57 283" stroke-dashoffset="-169" transform="rotate(-90 70 70)"/>
+<circle cx="70" cy="70" r="60" fill="none" stroke="var(--warning)" stroke-width="20" stroke-dasharray="38 283" stroke-dashoffset="-226" transform="rotate(-90 70 70)"/>
+<circle cx="70" cy="70" r="60" fill="none" stroke="#AB47BC" stroke-width="20" stroke-dasharray="19 283" stroke-dashoffset="-264" transform="rotate(-90 70 70)"/>
+</svg>
+<div style="flex:1;">
+<div style="display:flex;flex-direction:column;gap:8px;">
+<div style="display:flex;align-items:center;gap:8px;"><div style="width:10px;height:10px;border-radius:50%;background:var(--primary);"></div><span style="font-size:13px;">胸部 33%</span></div>
+<div style="display:flex;align-items:center;gap:8px;"><div style="width:10px;height:10px;border-radius:50%;background:#42A5F5;"></div><span style="font-size:13px;">背部 26%</span></div>
+<div style="display:flex;align-items:center;gap:8px;"><div style="width:10px;height:10px;border-radius:50%;background:var(--accent);"></div><span style="font-size:13px;">腿部 20%</span></div>
+<div style="display:flex;align-items:center;gap:8px;"><div style="width:10px;height:10px;border-radius:50%;background:var(--warning);"></div><span style="font-size:13px;">肩部 13%</span></div>
+<div style="display:flex;align-items:center;gap:8px;"><div style="width:10px;height:10px;border-radius:50%;background:#AB47BC;"></div><span style="font-size:13px;">其他 8%</span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="heatmap-section">
+<div class="heatmap-card">
+<div class="heatmap-title">训练热力图 · 2026</div>
+<div class="heatmap-grid" id="heatmap-grid"></div>
+<div class="heatmap-legend">
+<div class="heatmap-legend-label">少</div>
+<div class="heatmap-day l1"></div>
+<div class="heatmap-day l2"></div>
+<div class="heatmap-day l3"></div>
+<div class="heatmap-day l4"></div>
+<div class="heatmap-day l5"></div>
+<div class="heatmap-legend-label">多</div>
+</div>
+</div>
+</div>
+
+<div style="padding:0 16px 30px;">
+<button class="btn btn-outline" onclick="showToast('导出Excel')">📊 导出数据</button>
+</div>
+</div>
+
+</div><!-- end screen -->
+
+<!-- Bottom Nav -->
+<div class="bottom-nav" id="bottom-nav">
+<div class="bottom-nav-item active" onclick="navigateTo('page-home')">
+<div class="nav-icon">📅</div>
+<div class="nav-label">首页</div>
+</div>
+<div class="bottom-nav-item" onclick="showToast('计划列表页')">
+<div class="nav-icon">📋</div>
+<div class="nav-label">计划</div>
+</div>
+<div class="bottom-nav-item" onclick="navigateTo('page-workout')">
+<div class="nav-icon" style="width:48px;height:48px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;margin-top:-20px;box-shadow:0 4px 15px rgba(229,57,53,0.4);">🏋️</div>
+<div class="nav-label">训练</div>
+</div>
+<div class="bottom-nav-item" onclick="navigateTo('page-dashboard')">
+<div class="nav-icon">📈</div>
+<div class="nav-label">数据</div>
+</div>
+<div class="bottom-nav-item" onclick="showToast('个人中心')">
+<div class="nav-icon">👤</div>
+<div class="nav-label">我的</div>
+</div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal()">
+<div class="modal-content" onclick="event.stopPropagation()">
+<div class="modal-title" id="modal-title">标题</div>
+<div id="modal-body">
+<p style="color:var(--text-secondary);font-size:14px;line-height:1.6;">这里是弹窗内容区域，可放置表单或其他交互元素。</p>
+</div>
+<div class="modal-actions">
+<button class="btn btn-outline" onclick="closeModal()">取消</button>
+<button class="btn" onclick="closeModal();showToast('操作成功');">确认</button>
+</div>
+</div>
+</div>
+
+</div><!-- end phone -->
+
+<script>
+// ===== Navigation =====
+let currentPage = 'page-home';
+function navigateTo(pageId){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  currentPage = pageId;
+  const screen = document.querySelector('.screen');
+  screen.scrollTop = 0;
+  updateNav(pageId);
+}
+function updateNav(pageId){
+  const items = document.querySelectorAll('.bottom-nav-item');
+  items.forEach(i=>i.classList.remove('active'));
+  if(pageId==='page-home') items[0].classList.add('active');
+  else if(pageId==='page-dashboard') items[3].classList.add('active');
+}
+
+// ===== Toast =====
+function showToast(msg,type=''){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ===== Modal =====
+function showModal(title){
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('show');
+}
+
+// ===== Calendar =====
+const calendarData = {
+  '2026-05-01':{type:'workout',label:'胸'},
+  '2026-05-02':{type:'workout',label:'背'},
+  '2026-05-03':{type:'rest'},
+  '2026-05-04':{type:'workout',label:'肩'},
+  '2026-05-05':{type:'workout',label:'腿'},
+  '2026-05-06':{type:'workout',label:'手'},
+  '2026-05-07':{type:'today',label:'胸'},
+  '2026-05-08':{type:'workout',label:'有'},
+  '2026-05-09':{type:'workout',label:'核'},
+  '2026-05-10':{type:'rest'},
+};
+function renderCalendar(){
+  const grid = document.getElementById('calendar-grid');
+  let html = '<div class="calendar-day-header">日</div><div class="calendar-day-header">一</div><div class="calendar-day-header">二</div><div class="calendar-day-header">三</div><div class="calendar-day-header">四</div><div class="calendar-day-header">五</div><div class="calendar-day-header">六</div>';
+  const year=2026, month=4;
+  const firstDay = new Date(year,month,1).getDay();
+  const daysInMonth = new Date(year,month+1,0).getDate();
+  for(let i=0;i<firstDay;i++){
+    html+='<div class="calendar-day"></div>';
+  }
+  for(let d=1;d<=daysInMonth;d++){
+    const key = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const data = calendarData[key];
+    let cls='calendar-day';
+    let label='';
+    if(data){
+      if(data.type==='today'){cls+=' today has-workout';label=data.label;}
+      else if(data.type==='workout'){cls+=' has-workout';label=data.label;}
+      else if(data.type==='rest'){cls+=' rest';label='休';}
+      else if(data.type==='completed'){cls+=' completed';label=data.label;}
+    }
+    html+=`<div class="${cls}" onclick="onDayClick('${key}')"><div class="day-num">${d}</div>${label?`<div class="day-label">${label}</div>`:''}</div>`;
+  }
+  grid.innerHTML = html;
+}
+function onDayClick(date){
+  const data = calendarData[date];
+  if(!data) return showToast(date+' 无训练计划');
+  if(data.type==='rest') return showToast(date+' 休息日');
+  if(data.type==='today') navigateTo('page-workout');
+  else showToast(date+' 查看详情 / 补签');
+}
+function changeMonth(dir){showToast(dir>0?'下一个月':'上一个月');}
+
+// ===== Create Plan =====
+function selectSplit(el){
+  el.parentElement.querySelectorAll('.split-option').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+document.querySelectorAll('.week-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    btn.parentElement.querySelectorAll('.week-btn').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+  });
+});
+
+// ===== Exercise Search & Add =====
+let selectedExercises = [];
+function filterExercises(q){
+  const items = document.querySelectorAll('.exercise-item');
+  const val = q.toLowerCase();
+  items.forEach(item=>{
+    const name = item.dataset.name.toLowerCase();
+    item.style.display = name.includes(val)?'flex':'none';
+  });
+}
+function filterCategory(cat){
+  const items = document.querySelectorAll('.exercise-item');
+  items.forEach(item=>{
+    if(cat==='all') item.style.display='flex';
+    else item.style.display = item.dataset.cat===cat?'flex':'none';
+  });
+}
+function addExercise(el){
+  const name = el.dataset.name;
+  const cat = el.dataset.cat;
+  if(selectedExercises.find(e=>e.name===name)) return showToast(name+' 已添加');
+  selectedExercises.push({name,cat,sets:4,repsMin:8,repsMax:10,rest:90});
+  renderSelected();
+  showToast('已添加: '+name,'success');
+}
+function removeExercise(idx){
+  selectedExercises.splice(idx,1);
+  renderSelected();
+}
+function renderSelected(){
+  const container = document.getElementById('selected-list');
+  document.getElementById('selected-count').textContent = '已添加 '+selectedExercises.length+' 个动作';
+  if(!selectedExercises.length){container.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px;">点击上方动作添加到计划</div>';return;}
+  container.innerHTML = selectedExercises.map((ex,idx)=>`
+    <div class="exercise-config" style="animation:fadeIn 0.2s ease;">
+      <div class="exercise-config-header">
+        <div class="exercise-config-name">${idx+1}. ${ex.name}</div>
+        <div class="exercise-config-actions">
+          <div class="config-icon" onclick="removeExercise(${idx})" title="删除">🗑️</div>
+          <div class="config-icon" onclick="showToast('长按拖拽排序')" title="排序">⋮⋮</div>
+        </div>
+      </div>
+      <div class="config-row">
+        <div class="config-field"><label>组数</label><input type="number" class="input" value="${ex.sets}"></div>
+        <div class="config-field"><label>次数</label><input type="text" class="input" value="${ex.repsMin}-${ex.repsMax}"></div>
+        <div class="config-field"><label>休息</label><input type="text" class="input" value="${ex.rest}s"></div>
+      </div>
+      <div class="config-rest">
+        <label>快捷:</label>
+        <span class="rest-chip ${ex.rest===60?'selected':''}" onclick="setRest(this,${idx},60)">60s</span>
+        <span class="rest-chip ${ex.rest===75?'selected':''}" onclick="setRest(this,${idx},75)">75s</span>
+        <span class="rest-chip ${ex.rest===90?'selected':''}" onclick="setRest(this,${idx},90)">90s</span>
+        <span class="rest-chip ${ex.rest===120?'selected':''}" onclick="setRest(this,${idx},120)">2min</span>
+      </div>
+    </div>
+  `).join('');
+}
+function setRest(el,idx,sec){
+  selectedExercises[idx].rest = sec;
+  el.parentElement.querySelectorAll('.rest-chip').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+renderSelected();
+
+// ===== AI Import =====
+const examples = {
+  ppl:`周一 推日
+平板杠铃卧推 4组x8-10次 休息90s
+上斜哑铃卧推 4组x10-12次 休息75s
+双杠臂屈伸 3组x10-12次
+绳索夹胸 3组x12-15次 休息60s
+侧平举 4组x12-15次 休息60s
+三头下压 3组x12-15次 休息60s
+
+周二 拉日
+引体向上 4组x8-10次 休息90s
+杠铃划船 4组x8-10次 休息90s
+高位下拉 3组x10-12次 休息75s
+面拉 3组x15-20次 休息45s
+杠铃弯举 3组x10-12次 休息60s
+哑铃弯举 3组x10-12次 休息60s
+
+周三 腿日
+杠铃深蹲 5组x5次 休息3min
+罗马尼亚硬拉 4组x8-10次 休息2min
+腿举 3组x12-15次 休息90s
+腿弯举 3组x12-15次 休息60s
+坐姿提踵 4组x15-20次 休息45s`,
+  upperlower:`周一 上肢
+平板杠铃卧推 4组x8-10次 休息90s
+引体向上 4组x8-10次 休息90s
+哑铃推举 3组x10-12次 休息75s
+杠铃划船 3组x8-10次 休息90s
+侧平举 3组x12-15次 休息60s
+
+周二 下肢
+杠铃深蹲 5组x5次 休息3min
+罗马尼亚硬拉 4组x8次 休息2min
+腿举 3组x12次 休息90s
+腿弯举 3组x12次 休息60s
+卷腹 3组x20次 休息45s`,
+  '5day':`周一 胸
+平板杠铃卧推 4组x8-10次 休息90s
+上斜哑铃卧推 4组x10-12次 休息75s
+双杠臂屈伸 3组x10-12次
+绳索夹胸 3组x12-15次
+
+周二 背
+引体向上 4组x8-10次 休息90s
+杠铃划船 4组x8-10次 休息90s
+高位下拉 3组x10-12次
+直臂下压 3组x12-15次`
+};
+function fillExample(type){
+  document.getElementById('ai-text').value = examples[type];
+  showToast('已填入示例');
+}
+function parseAI(){
+  const text = document.getElementById('ai-text').value;
+  if(!text.trim()) return showToast('请输入训练计划文本');
+  document.getElementById('preview-original').textContent = text;
+  let result = '';
+  const lines = text.split('\n');
+  let currentDay = '';
+  lines.forEach(line=>{
+    const trimmed = line.trim();
+    if(!trimmed) return;
+    if(/^(周一|周二|周三|周四|周五|周六|周日)/.test(trimmed)){
+      currentDay = trimmed;
+      result += `<div class="result-day">${trimmed}</div>`;
+    } else if(currentDay){
+      const match = trimmed.match(/^(.+?)\s+(\d+)组x(\d+)(?:-(\d+))?次/);
+      if(match){
+        const name = match[1];
+        const sets = match[2];
+        const reps = match[4] ? `${match[3]}-${match[4]}` : match[3];
+        result += `<div class="result-exercise"><span class="ex-name">${name}</span> <span>${sets}组 x ${reps}次 ✅</span></div>`;
+      } else {
+        result += `<div class="result-exercise unrecognized">${trimmed} ⚠️ 未识别</div>`;
+      }
+    }
+  });
+  document.getElementById('preview-result').innerHTML = result;
+  document.getElementById('preview-section').classList.add('show');
+  document.querySelector('.screen').scrollTop = document.querySelector('.screen').scrollHeight;
+  showToast('识别完成！','success');
+}
+
+// ===== Workout =====
+function toggleSet(el){
+  el.classList.toggle('checked');
+  if(el.classList.contains('checked')){
+    showToast('组完成','success');
+    updateProgress();
+  }
+}
+function selectRPE(el){
+  el.parentElement.querySelectorAll('button').forEach(b=>{
+    b.style.background='var(--surface-light)';
+    b.style.border='1px solid var(--border)';
+    b.style.color='var(--text)';
+  });
+  el.style.background='var(--primary)';
+  el.style.border='none';
+  el.style.color='#fff';
+}
+let timerInterval = null;
+let timerSeconds = 0;
+let timerActive = false;
+function startRest(el,seconds){
+  if(timerInterval) clearInterval(timerInterval);
+  timerSeconds = seconds;
+  timerActive = true;
+  document.getElementById('timer-bar').classList.add('active');
+  document.querySelector('.screen').scrollTop = 0;
+  updateTimerDisplay();
+  timerInterval = setInterval(()=>{
+    timerSeconds--;
+    updateTimerDisplay();
+    if(timerSeconds<=0){
+      clearInterval(timerInterval);
+      timerInterval=null;
+      timerActive=false;
+      showToast('休息结束！','success');
+      document.getElementById('timer-bar').classList.remove('active');
+      if(el) el.classList.remove('running');
+    }
+  },1000);
+  document.querySelectorAll('.set-timer').forEach(t=>t.classList.remove('running'));
+  if(el) el.classList.add('running');
+}
+function updateTimerDisplay(){
+  const m = String(Math.floor(timerSeconds/60)).padStart(2,'0');
+  const s = String(timerSeconds%60).padStart(2,'0');
+  document.getElementById('timer-display').textContent = m+':'+s;
+}
+function toggleTimer(){
+  if(!timerInterval) return;
+  clearInterval(timerInterval);
+  timerInterval=null;
+  timerActive=false;
+  showToast('计时器已暂停');
+}
+function skipTimer(){
+  if(timerInterval) clearInterval(timerInterval);
+  timerInterval=null;
+  timerActive=false;
+  document.getElementById('timer-bar').classList.remove('active');
+  document.querySelectorAll('.set-timer').forEach(t=>t.classList.remove('running'));
+  showToast('已跳过休息');
+}
+function updateProgress(){
+  const checked = document.querySelectorAll('.set-checkbox.checked').length;
+  const total = document.querySelectorAll('.set-checkbox').length;
+  const btn = document.querySelector('.finish-btn');
+  if(btn) btn.textContent = '完成今日训练 ('+checked+'/'+total+'组)';
+}
+
+// ===== Heatmap =====
+function renderHeatmap(){
+  const grid = document.getElementById('heatmap-grid');
+  let html = '';
+  for(let week=0;week<18;week++){
+    html += '<div class="heatmap-week">';
+    for(let day=0;day<7;day++){
+      const rand = Math.random();
+      let cls = '';
+      if(rand>0.85) cls='l5';
+      else if(rand>0.7) cls='l4';
+      else if(rand>0.55) cls='l3';
+      else if(rand>0.4) cls='l2';
+      else if(rand>0.25) cls='l1';
+      html += `<div class="heatmap-day ${cls}" onclick="showToast('${['日','一','二','三','四','五','六'][day]} 容量: ${Math.floor(rand*10000)}kg')"></div>`;
+    }
+    html += '</div>';
+  }
+  grid.innerHTML = html;
+}
+
+// ===== Init =====
+renderCalendar();
+renderHeatmap();
+</script>
+</body>
+</html>

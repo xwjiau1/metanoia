@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HYROS Fit — AI 驱动的健身训练管理</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">HYROS</span>
+                <span class="logo-text">Fit</span>
+            </div>
+            <div class="nav-links">
+                <a href="#features">功能</a>
+                <a href="#screenshots">预览</a>
+                <a href="#pricing">定价</a>
+                <a href="#faq">FAQ</a>
+            </div>
+            <a href="#download" class="nav-cta">下载</a>
+        </div>
+    </nav>
+
+    <!-- Section 1: Hero -->
+    <section id="hero" class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">HYROS Fit</h1>
+                <p class="hero-subtitle">计划即执行，打卡即进步</p>
+                <p class="hero-desc">AI驱动的健身训练管理工具。专为有结构化训练计划的进阶健身者打造。AI导入计划、日历打卡、智能分析，三位一体化。</p>
+                <div class="hero-ctas">
+                    <a id="download" href="https://expo.dev/artifacts/eas/72jFCkqSd8r1mgM9T3Jf5F.apk" class="btn-primary" download>
+                        <span class="btn-icon">↓</span>
+                        下载 Android APK
+                    </a>
+                    <a href="https://github.com/wenner/hyros-fit" class="btn-secondary" target="_blank">查看使用文档</a>
+                </div>
+            </div>
+            <div class="hero-mockup">
+                <div class="phone-frame">
+                    <div class="phone-screen">
+                        <div class="app-header">
+                            <span class="app-title">HYROS</span>
+                            <span class="app-subtitle">Fit</span>
+                        </div>
+                        <div class="app-card">
+                            <div class="card-label">今日训练</div>
+                            <div class="card-title">推训练 — 胸/肩/三头</div>
+                            <div class="card-meta">8 个动作 · 预计 65 分钟</div>
+                            <div class="card-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 0%"></div>
+                                </div>
+                                <span>0/8</span>
+                            </div>
+                            <button class="card-btn">开始训练</button>
+                        </div>
+                        <div class="app-calendar-mini">
+                            <div class="cal-row">
+                                <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+                            </div>
+                            <div class="cal-row">
+                                <span></span><span></span><span class="active">1</span><span class="done">2</span><span class="today">3</span><span>4</span><span>5</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-hint">
+            <div class="scroll-mouse">
+                <div class="scroll-wheel"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 2: Features -->
+    <section id="features" class="features">
+        <div class="section-container">
+            <h2 class="section-title">为什么选 HYROS Fit</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3>AI 计划生成</h3>
+                    <p>对话式AI教练，根据你的经验、目标、器械，一键生成专属训练计划</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📅</div>
+                    <h3>日历打卡</h3>
+                    <p>训练计划自动映射到日历，每日训练一键打卡，组间计时自动提醒</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>数据看板</h3>
+                    <p>容量趋势、力量增长、部位分布，用数据驱动训练决策</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💡</div>
+                    <h3>智能建议</h3>
+                    <p>训练停滞？容量过载？AI自动检测并给出专业调整建议</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 3: Screenshots -->
+    <section id="screenshots" class="screenshots">
+        <div class="section-container">
+            <h2 class="section-title">界面预览</h2>
+            <div class="screenshots-scroll">
+                <!-- Mockup 1: Home -->
+                <div class="phone-frame small">
+                    <div class="phone-screen">
+                        <div class="screen-label">首页</div>
+                        <div class="app-header">
+                            <span class="app-title">HYROS</span>
+                            <span class="app-subtitle">Fit</span>
+                        </div>
+                        <div class="app-card">
+                            <div class="card-label">今日训练</div>
+                            <div class="card-title">推训练</div>
+                            <div class="card-meta">8 个动作</div>
+                            <div class="card-progress">
+                                <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                                <span>0/8</span>
+                            </div>
+                            <button class="card-btn">开始</button>
+                        </div>
+                        <div class="mini-list">
+                            <div class="mini-item">平板卧推</div>
+                            <div class="mini-item">哑铃推举</div>
+                            <div class="mini-item">侧平举</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mockup 2: Workout Log -->
+                <div class="phone-frame small">
+                    <div class="phone-screen">
+                        <div class="screen-label">训练打卡</div>
+                        <div class="workout-header">
+                            <span>平板卧推</span>
+                            <span class="sets-count">3/4 组</span>
+                        </div>
+                        <div class="sets-list">
+                            <div class="set-row done">
+                                <span class="set-num">1</span>
+                                <span class="set-weight">80kg × 10</span>
+                                <span class="set-check">✓</span>
+                            </div>
+                            <div class="set-row done">
+                                <span class="set-num">2</span>
+                                <span class="set-weight">80kg × 10</span>
+                                <span class="set-check">✓</span>
+                            </div>
+                            <div class="set-row active">
+                                <span class="set-num">3</span>
+                                <span class="set-weight">80kg × __</span>
+                            </div>
+                        </div>
+                        <div class="timer-box">
+                            <span class="timer-label">组间休息</span>
+                            <span class="timer-value">1:45</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mockup 3: AI Chat -->
+                <div class="phone-frame small">
+                    <div class="phone-screen">
+                        <div class="screen-label">AI 计划生成</div>
+                        <div class="chat-bubble bot">
+                            <p>你好！我可以帮你生成训练计划。</p>
+                        </div>
+                        <div class="chat-bubble bot">
+                            <p>告诉我：你的训练经验、目标和可用器械？</p>
+                        </div>
+                        <div class="chat-bubble user">
+                            <p>3年经验，增肌，健身房</p>
+                        </div>
+                        <div class="chat-bubble bot">
+                            <p>已生成4天分化计划，请点击查看。</p>
+                        </div>
+                        <div class="chat-input">
+                            <span>输入消息...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mockup 4: Stats -->
+                <div class="phone-frame small">
+                    <div class="phone-screen">
+                        <div class="screen-label">数据统计</div>
+                        <div class="stat-row">
+                            <div class="stat-item">
+                                <span class="stat-value">127</span>
+                                <span class="stat-label">总训练</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value">14</span>
+                                <span class="stat-label">连续打卡</span>
+                            </div>
+                        </div>
+                        <div class="chart-area">
+                            <div class="chart-bar" style="height: 40%"></div>
+                            <div class="chart-bar" style="height: 65%"></div>
+                            <div class="chart-bar" style="height: 55%"></div>
+                            <div class="chart-bar" style="height: 80%"></div>
+                            <div class="chart-bar" style="height: 70%"></div>
+                        </div>
+                        <div class="stat-detail">
+                            <span>本周容量</span>
+                            <span class="detail-value">28,450 kg</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mockup 5: Calendar -->
+                <div class="phone-frame small">
+                    <div class="phone-screen">
+                        <div class="screen-label">日历视图</div>
+                        <div class="cal-header">2026 年 5 月</div>
+                        <div class="cal-grid">
+                            <div class="cal-day-header">日</div>
+                            <div class="cal-day-header">一</div>
+                            <div class="cal-day-header">二</div>
+                            <div class="cal-day-header">三</div>
+                            <div class="cal-day-header">四</div>
+                            <div class="cal-day-header">五</div>
+                            <div class="cal-day-header">六</div>
+                            <div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div>
+                            <div class="cal-day"></div><div class="cal-day done">1</div><div class="cal-day done">2</div>
+                            <div class="cal-day today">3</div><div class="cal-day planned">4</div><div class="cal-day planned">5</div>
+                            <div class="cal-day planned">6</div><div class="cal-day"></div><div class="cal-day"></div>
+                        </div>
+                        <div class="legend">
+                            <span class="dot done"></span>已完成
+                            <span class="dot planned"></span>计划中
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 4: AI Providers -->
+    <section id="ai" class="ai-section">
+        <div class="section-container">
+            <h2 class="section-title">自带AI，也可接你自己的</h2>
+            <p class="section-desc">内置AI能力，同时支持接入你自己的大模型。OpenAI、Kimi、DeepSeek、通义千问、本地 Ollama — 一键切换。</p>
+            <div class="provider-grid">
+                <div class="provider-tag">OpenAI</div>
+                <div class="provider-tag">Kimi</div>
+                <div class="provider-tag">DeepSeek</div>
+                <div class="provider-tag">通义千问</div>
+                <div class="provider-tag">Ollama</div>
+            </div>
+            <div class="config-mockup">
+                <div class="config-row">
+                    <label>API URL</label>
+                    <div class="config-input">https://api.openai.com/v1/chat/completions</div>
+                </div>
+                <div class="config-row">
+                    <label>API Key</label>
+                    <div class="config-input">sk-••••••••••••••••••••</div>
+                </div>
+                <div class="config-row">
+                    <label>模型</label>
+                    <div class="config-input">gpt-4o-mini ▼</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 5: Pricing -->
+    <section id="pricing" class="pricing">
+        <div class="section-container">
+            <h2 class="section-title">选择适合你的版本</h2>
+            <div class="pricing-grid">
+                <div class="pricing-card free">
+                    <div class="pricing-badge">免费版</div>
+                    <div class="pricing-price">
+                        <span class="price">¥0</span>
+                        <span class="period">永久免费</span>
+                    </div>
+                    <ul class="feature-list">
+                        <li><span class="check">✓</span> 手动创建训练计划</li>
+                        <li><span class="check">✓</span> 日历打卡 + 计时器</li>
+                        <li><span class="check">✓</span> 基础数据统计</li>
+                        <li><span class="check">✓</span> AI文本导入计划</li>
+                        <li><span class="check">✓</span> 150+ 动作库</li>
+                        <li><span class="check">✓</span> 5个内置模板</li>
+                        <li><span class="check">✓</span> 本地数据存储</li>
+                    </ul>
+                    <div class="pricing-limit">
+                        <p>限制：AI计划生成限3次/月，无云端同步，无高级模板</p>
+                    </div>
+                    <a href="#download" class="btn-outline">免费下载</a>
+                </div>
+                <div class="pricing-card pro">
+                    <div class="pricing-badge pro-badge">高级版</div>
+                    <div class="pricing-price">
+                        <span class="price">¥12</span>
+                        <span class="period">/月</span>
+                    </div>
+                    <div class="pricing-save">或 ¥98/年（省27%）</div>
+                    <ul class="feature-list">
+                        <li><span class="check">✓</span> 免费版全部功能</li>
+                        <li><span class="check">✓</span> AI计划生成无限次</li>
+                        <li><span class="check">✓</span> 15+ 高级模板</li>
+                        <li><span class="check">✓</span> 云端同步 + 多设备</li>
+                        <li><span class="check">✓</span> 数据导出 Excel</li>
+                        <li><span class="check">✓</span> 智能建议系统</li>
+                        <li><span class="check">✓</span> 语音输入打卡</li>
+                        <li><span class="check">✓</span> 训练照片记录</li>
+                        <li><span class="check">✓</span> 去除广告</li>
+                    </ul>
+                    <button class="btn-disabled" disabled>即将上线</button>
+                    <span class="dev-note">开发中，敬请期待</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 6: Quick Start -->
+    <section id="quickstart" class="quickstart">
+        <div class="section-container">
+            <h2 class="section-title">3 分钟上手</h2>
+            <div class="timeline">
+                <div class="timeline-step">
+                    <div class="timeline-num">1</div>
+                    <h3>创建计划</h3>
+                    <p>手动添加动作或使用AI导入/模板创建你的训练计划</p>
+                </div>
+                <div class="timeline-line"></div>
+                <div class="timeline-step">
+                    <div class="timeline-num">2</div>
+                    <h3>日历打卡</h3>
+                    <p>按日历执行训练，记录每组重量和次数，组间自动计时</p>
+                </div>
+                <div class="timeline-line"></div>
+                <div class="timeline-step">
+                    <div class="timeline-num">3</div>
+                    <h3>查看统计</h3>
+                    <p>训练完成后查看容量、时长、连续打卡等数据</p>
+                </div>
+            </div>
+            <div class="doc-link">
+                <a href="https://github.com/wenner/hyros-fit" target="_blank">查看完整使用文档 →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 7: FAQ -->
+    <section id="faq" class="faq">
+        <div class="section-container">
+            <h2 class="section-title">常见问题</h2>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>Q: 支持 iOS 吗？</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>当前仅支持 Android，iOS 版本正在开发中。</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>Q: 需要联网吗？</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>核心功能完全离线可用，AI 功能需要联网。</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>Q: 数据会丢失吗？</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>数据存储在本地，建议定期导出备份。高级版支持云端同步。</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>Q: 如何导入已有计划？</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>支持文本粘贴导入、截图辅助导入、Excel/CSV 导入。</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>Q: 可以自定义 AI 模型吗？</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>可以，在设置中配置你自己的 API Key 和模型 URL。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 8: Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <span class="logo-icon">HYROS</span>
+                <span class="logo-text">Fit</span>
+                <p class="footer-tagline">计划即执行，打卡即进步</p>
+            </div>
+            <div class="footer-links">
+                <a href="#download">下载</a>
+                <a href="https://github.com/wenner/hyros-fit" target="_blank">文档</a>
+                <a href="https://github.com/wenner/hyros-fit" target="_blank">GitHub</a>
+                <a href="mailto:feedback@hyros.fit">反馈</a>
+            </div>
+            <div class="footer-copy">
+                <p>© 2026 HYROS Fit. All rights reserved.</p>
+                <p class="footer-made">Made with 💪 by 启明科技</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
